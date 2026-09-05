@@ -33,3 +33,18 @@ Pipeline behavior while validation is pending:
 - `name_bank.csv` carries `human_validated=False` for every Christian and Sikh row until a validation pass is run and κ is computed and recorded.
 - Any output, report, or downstream use of these cells must carry an explicit reliability caveat: **labels are classifier/rule-based and unvalidated**. Do not treat Christian/Sikh cell results as equivalent in confidence to Hindu/Muslim results (which have pranaam as an independent cross-check) until validation lands.
 - If validation is never run, these cells should be reported with the caveat rather than dropped outright — an unvalidated-but-transparent cell is more useful than silently missing data, as long as the caveat travels with every use of the cell.
+
+## 4. Religion classifiers turned out to be unavailable, not just risky (2026-09-05)
+
+The plan flagged Phase 3 as "where the actual research risk sits" because of thin classifier training data (§2, risk register). What actually happened during Phase 3 was more basic: **every classifier the plan named was unusable when we went to call it**, for two different reasons:
+
+- **Chaturvedi's multiclass classifier has no published trained weights at all.** Its notebook only ever loaded model files from the author's private Google Drive path (`/content/drive/My Drive/name_to_religion/`). The GitHub repo's `models/` directory contains a different task's CNN (USA race prediction) and a 2-class SVM `.sav` with no paired vectorizer file. This is permanent, not an outage — the asset was never released publicly.
+- **pranaam (Muslim/non-Muslim binary) is a real, current package**, but as of 2026-09-05 it downloads its model weights from Harvard Dataverse at request time, and that host is the same one that's been 504ing since Phase 1 (see `data/PROVENANCE.md`). Temporarily unavailable, tracked by the same recovery routine as naampy's first-name data.
+
+**Decision:** rather than block Phase 3 entirely, `src/phase3_religion_labeling.py` falls back to the same method Thorat & Attewell (2007) and Banerjee, Bertrand, Datta & Mullainathan (2009) actually used — explicit, hand-curated marker-surname lists (`data/mappings/muslim_surname_markers.csv`, `hindu_upper_caste_surnames.csv`, `christian_surname_markers.csv`, `sikh_surname_candidates.csv`), applied to the real Phase 1/2 frequency data. Counts are real electoral-roll counts; category assignment is manual, not model-inferred.
+
+**Consequence for §3 (hand validation):** the human_validated=False caveat from decision #3 above no longer applies only to Christian/Sikh — it now applies to every row in `name_bank.csv`, Muslim and Hindu included, because none of it has been through a classifier cross-check yet, only a hand-curated list. Re-run Phase 3 once pranaam's weights are reachable and treat its output as a check against the current curated lists, not a replacement that can be skipped.
+
+**Consequence for the Sikh cell:** not included in `name_bank.csv` yet at all (as opposed to included-with-caveat like Christian). The plan is explicit that Singh/Kaur alone can't separate Sikh from Hindu Rajput/the wider Hindi belt without pairing with a validated Punjabi Sikh given name — and first names are still blocked on the same Dataverse outage. Surname-only candidates are staged in `data/processed/sikh_surname_candidates_staged.csv` for when that becomes possible.
+
+**Consequence for the Christian cell:** anchored to Kerala and Goa markers only. North-East Christian surnames don't run through a distinctive-surname pattern the way Kerala/Goa do (much more tribal/ethnic-name-based) — documented as a gap rather than guessed at with an unreliable marker list.

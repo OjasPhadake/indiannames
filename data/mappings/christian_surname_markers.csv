@@ -1,0 +1,26 @@
+surname,anchor_state,note
+thomas,Kerala,
+varghese,Kerala,
+mathew,Kerala,
+mathews,Kerala,
+jacob,Kerala,
+kurian,Kerala,
+abraham,Kerala,
+george,Kerala,ambiguous outside Kerala (also a Western first/last name) -- anchored to Kerala frequency only
+zachariah,Kerala,
+chacko,Kerala,
+idicula,Kerala,
+oommen,Kerala,
+kutty,Kerala,often a suffix rather than standalone surname -- verify before use
+fernandes,Goa,
+dsouza,Goa,
+souza,Goa,
+pereira,Goa,
+rodrigues,Goa,
+fernandez,Goa,
+rebello,Goa,
+braganza,Goa,
+colaco,Goa,
+gonsalves,Goa,
+lobo,Goa,
+pinto,Goa,also common as a non-Christian surname elsewhere in India -- anchored to Goa frequency only

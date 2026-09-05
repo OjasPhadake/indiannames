@@ -1,0 +1,38 @@
+surname,note
+sharma,North Hindi-belt Brahmin
+verma,North Hindi-belt
+gupta,North Hindi-belt Baniya
+agarwal,North Hindi-belt Baniya
+aggarwal,North Hindi-belt Baniya
+bhalla,North Hindi-belt Khatri
+kapoor,North Hindi-belt Khatri
+chopra,North Hindi-belt Khatri
+mehta,North/West Bania/Brahmin
+malhotra,North Hindi-belt Khatri
+khanna,North Hindi-belt Khatri
+joshi,North/West Brahmin
+trivedi,North/West Brahmin
+mishra,North Hindi-belt Brahmin
+pandey,North Hindi-belt Brahmin
+tiwari,North Hindi-belt Brahmin
+dwivedi,North Hindi-belt Brahmin
+dixit,North Hindi-belt Brahmin
+saxena,North Hindi-belt Kayastha
+srivastava,North Hindi-belt Kayastha
+bhargava,North Hindi-belt Brahmin
+rastogi,North Hindi-belt Baniya
+chaturvedi,North Hindi-belt Brahmin
+sinha,East Hindi-belt Kayastha
+mukherjee,East Bengali Brahmin
+banerjee,East Bengali Brahmin
+chatterjee,East Bengali Brahmin
+bhattacharya,East Bengali Brahmin
+patel,West Gujarati dominant caste (Thorat & Attewell / Banerjee et al. baseline)
+desai,West Gujarati dominant caste
+shah,West Gujarati Bania/Jain -- deliberately kept off the Muslim marker list despite some overlap in usage elsewhere in India
+iyer,South Tamil Brahmin
+iyengar,South Tamil Brahmin
+rao,South Telugu/Kannada dominant caste
+reddy,South Telugu dominant caste
+nair,South Kerala dominant caste
+menon,South Kerala dominant caste
