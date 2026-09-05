@@ -2,20 +2,20 @@
 
 Gender, religion, region name bank for India, and a counterfactual ranking harness for auditing LLM hiring bias.
 
-Full build plan: [`docs/PLAN.md`](docs/PLAN.md). Design decisions (caste handling, region mapping, validation policy): [`DECISIONS.md`](DECISIONS.md).
+Full build plan: [`docs/PLAN.md`](docs/PLAN.md). Design decisions (caste handling, region mapping, validation policy, classifier availability): [`DECISIONS.md`](DECISIONS.md). Every paper/dataset/tool used and what was taken from each: [`CITATIONS.md`](CITATIONS.md). Data-pull mechanics and outage workarounds: [`data/PROVENANCE.md`](data/PROVENANCE.md).
 
 ## Status
 
-Phase 1 (frequency base) in progress.
+Phases 1-3 done for surnames (`data/processed/name_bank.csv`). First names blocked on a Harvard Dataverse outage (tracked by an automated recovery routine); Phase 3's religion labels are hand-curated-marker-based rather than classifier-verified, since both classifiers the plan named turned out unavailable — see `DECISIONS.md` #4.
 
 ## Layout
 
 ```
 data/
-  mappings/     state_region_mapping.csv (§3.1 / DECISIONS.md #1)
+  mappings/     state_region_mapping.csv, *_surname_markers.csv (religion marker lists), sikh_surname_candidates.csv
   raw/          unmodified pulls from naampy / instate
   processed/    freq_firstnames.csv, freq_surnames.csv, clean_names.csv, name_bank.csv
-  validation/   hand-validation samples for the Christian/Sikh cells (DECISIONS.md #3)
+  validation/   near_duplicates_for_review.csv, hand-validation samples (DECISIONS.md #3)
 src/            build scripts, one per phase
 docs/           PLAN.md
 ```
