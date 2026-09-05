@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+data/raw/
+data/processed/freq_firstnames.csv
+data/processed/freq_surnames.csv

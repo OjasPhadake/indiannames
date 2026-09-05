@@ -1,0 +1,40 @@
+state,region,notes
+Jammu and Kashmir,North,
+Ladakh,North,
+Jammu and Kashmir and Ladakh,North,Pre-2019 electoral-roll naming (J&K and Ladakh were one state/UT); appears as a single combined column in the 2017-vintage instate/naampy source data
+Himachal Pradesh,North,
+Punjab,North,
+Chandigarh,North,
+Uttarakhand,North,
+Haryana,North,
+Delhi,North,
+Uttar Pradesh,North,
+Rajasthan,North,
+Madhya Pradesh,North,Central Hindi-belt state grouped North on linguistic grounds; see DECISIONS.md #1
+Chhattisgarh,North,Central Hindi-belt state grouped North on linguistic grounds; see DECISIONS.md #1 -- most contestable assignment in this table
+Bihar,East,
+Jharkhand,East,
+West Bengal,East,
+Odisha,East,
+Sikkim,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Assam,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Arunachal Pradesh,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Nagaland,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Manipur,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Mizoram,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Tripura,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Meghalaya,East,North-East state folded into East region bucket; see DECISIONS.md #1
+Gujarat,West,
+Maharashtra,West,
+Goa,West,
+Dadra and Nagar Haveli and Daman and Diu,West,Post-2020 merged UT name; kept for documentation completeness
+Dadra and Nagar Haveli,West,Pre-2020 electoral-roll naming (separate UT); appears as its own column in the 2017-vintage instate/naampy source data
+Daman and Diu,West,Pre-2020 electoral-roll naming (separate UT); appears as its own column in the 2017-vintage instate/naampy source data
+Andhra Pradesh,South,
+Telangana,South,
+Karnataka,South,
+Kerala,South,
+Tamil Nadu,South,
+Puducherry,South,
+Andaman and Nicobar Islands,South,Grouped South as nearest administrative/geographic neighbor; negligible population in name-frequency tables
+Lakshadweep,South,Grouped South as nearest administrative/geographic neighbor; negligible population in name-frequency tables
