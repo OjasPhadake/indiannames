@@ -40,12 +40,17 @@ Every external paper, dataset, and tool this project draws on, and exactly what 
 ## Software / tools
 
 ### `appeler/instate` — surname → state prediction
-**What we took:** `instate_unique_ln_state_prop_v2.csv.gz` (1,915,898 surnames × 34 states, real electoral-roll counts). **Not** taken via `pip install instate` (installs 0.1.7, whose hardcoded download URL now 404s after the org's v3.0.0 rewrite) — pulled directly from the `v2.0.0` git tag instead: `https://raw.githubusercontent.com/appeler/instate/v2.0.0/src/instate/data/instate_unique_ln_state_prop_v2.csv.gz`. Full mechanics in `data/PROVENANCE.md`.
+**What we took:** `instate_unique_ln_state_prop_v2.parquet` (1,915,898 surnames × 34 states, real electoral-roll counts). **Not** taken via `pip install instate` (installs 0.1.7, whose hardcoded download URL now 404s after the org's v3.0.0 rewrite). First pulled from the `v2.0.0` GitHub tag as a stopgap; switched 2026-09-05 to `https://huggingface.co/gojiberries/instate/resolve/main/instate_unique_ln_state_prop_v2.parquet` — the maintainers' own current, pinned-commit distribution point (found by the project owner, verified byte-identical to the tag version before switching). Full mechanics in `data/PROVENANCE.md`.
 **License:** MIT (per the repo).
 **Where used:** `src/phase1_frequency_base.py`, `src/phase3_religion_labeling.py` (Christian cell, direct read of the raw cache).
 
+### `gojiberries/instate`, `gojiberries/naampy`, `gojiberries/pranaam` — Hugging Face, the `appeler` org's current model/data hosting
+**What we took:** the instate surname table above, from `gojiberries/instate`.
+**What we checked and didn't take:** `gojiberries/naampy`'s bulk file (`naampy_v2_1k_global_binary.parquet`) — inspected directly, it's a national-only aggregate (40,581 names, global male/female counts, no state column), so it can't substitute for the region-level first-name data Phase 1 needs. `gojiberries/pranaam`'s model weights (real safetensors files, English + Hindi) — exist, but the released `pranaam` package doesn't yet contain the code to load them (that's `pranaam/model_v3.py` on the GitHub `main` branch, unreleased and not wired into a public function).
+**Where used:** `src/phase1_frequency_base.py`; `data/PROVENANCE.md`.
+
 ### `appeler/naampy` — first name → state/gender
-**What we tried to take:** first-name × state × gender counts (v2 dataset, ≥100 occurrences/name, 30 states). **Blocked**, not obtained yet — naampy downloads this from Harvard Dataverse at runtime and every Dataverse endpoint has been 504ing since 2026-09-05. No alternative source found after checking: Internet Archive's "India Names Dataset" (only ever contained Andhra Pradesh, despite the title — see below), several Kaggle datasets (no region breakdown, undocumented provenance), census.name (paid, social-media-scraped, no region breakdown). Tracked by an automated recovery routine (`trig_01AiyrThAMwq9BhaTmjebsow`) that retries every 3 hours and pulls this the moment Dataverse recovers.
+**What we tried to take:** first-name × state × gender counts (v2 dataset, ≥100 occurrences/name, 30 states). **Blocked**, not obtained yet — naampy downloads this from Harvard Dataverse at runtime and every Dataverse endpoint has been 504ing since 2026-09-05. No alternative source found after checking: Internet Archive's "India Names Dataset" (only ever contained Andhra Pradesh, despite the title — see below), several Kaggle datasets (no region breakdown, undocumented provenance), census.name (paid, social-media-scraped, no region breakdown), and `gojiberries/naampy` on Hugging Face (real, but national-only, no state column — see below). Tracked by an automated recovery routine (`trig_01AiyrThAMwq9BhaTmjebsow`) that retries every 3 hours and pulls this the moment Dataverse recovers.
 **Where used:** `src/phase1_frequency_base.py`; blocker documented in `data/PROVENANCE.md`.
 
 ### `appeler/pranaam` — Muslim/non-Muslim classifier

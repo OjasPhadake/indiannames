@@ -18,11 +18,17 @@ instate: last_name + one proportion column per state + total_n
          to a file that the upstream repo has since deleted from its `main`
          branch (a v3.0.0 rewrite on 2026-08-19 moved to a Hugging-Face
          hosted, single-surname "abstain" API and dropped the bulk table).
-         That live URL now 404s. We instead pull the same table from the
-         instate v2.0.0 *tagged release* on GitHub, which still serves it
-         at a stable, versioned URL -- this is a public, MIT-licensed
-         release asset, not a workaround of any access control. See
-         PROVENANCE.md for exact URLs and dates.
+         That live URL now 404s.
+
+         Pulled instead from the maintainers' own current official
+         location: https://huggingface.co/gojiberries/instate (pinned
+         commit, per that repo's README: "the package downloads this
+         repository at an immutable commit so a released package cannot
+         silently change models"). Verified byte-identical to the
+         instate_unique_ln_state_prop_v2 table shipped in the old v2.0.0
+         GitHub tag (same shape, same total_n sum) before switching to
+         it -- this isn't new data, just a better-provenanced, non-Dataverse
+         host for the same table. See PROVENANCE.md and CITATIONS.md.
 
 See docs/PLAN.md Phase 1 and DECISIONS.md #1 for the state->region mapping
 rationale.
@@ -43,8 +49,8 @@ RAW_DIR = os.path.join(REPO_ROOT, "data", "raw")
 NAAMPY_DATASET = "v2"  # 30 states, min 100 occurrences per name (see naampy CLI --help)
 
 INSTATE_SURNAME_URL = (
-    "https://raw.githubusercontent.com/appeler/instate/v2.0.0/"
-    "src/instate/data/instate_unique_ln_state_prop_v2.csv.gz"
+    "https://huggingface.co/gojiberries/instate/resolve/main/"
+    "instate_unique_ln_state_prop_v2.parquet"
 )
 
 
@@ -109,10 +115,10 @@ def build_surname_region_table(mapping: pd.DataFrame) -> pd.DataFrame:
     4 region columns.
     """
     os.makedirs(RAW_DIR, exist_ok=True)
-    cache_path = os.path.join(RAW_DIR, "instate_v2_surname_state_prop_raw.csv.gz")
+    cache_path = os.path.join(RAW_DIR, "instate_v2_surname_state_prop_raw.parquet")
     _download(INSTATE_SURNAME_URL, cache_path)
 
-    df = pd.read_csv(cache_path)
+    df = pd.read_parquet(cache_path)
     if "last_name" not in df.columns or "total_n" not in df.columns:
         raise RuntimeError(f"Unexpected instate schema, columns: {list(df.columns)}")
 
@@ -154,7 +160,7 @@ def main() -> None:
     os.makedirs(OUT_DIR, exist_ok=True)
     mapping = load_region_mapping()
 
-    print("Building surname x region table (instate v2.0.0 release asset)...")
+    print("Building surname x region table (gojiberries/instate on Hugging Face, pinned commit)...")
     sn_region = build_surname_region_table(mapping)
     sn_region = sn_region.sort_values(["region", "n_total"], ascending=[True, False])
     sn_out = os.path.join(OUT_DIR, "freq_surnames.csv")

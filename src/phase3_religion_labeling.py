@@ -113,8 +113,8 @@ def build_hindu_cells(surnames: pd.DataFrame) -> pd.DataFrame:
 
 def build_christian_cell() -> pd.DataFrame:
     markers_df = pd.read_csv(os.path.join(MAPPINGS_DIR, "christian_surname_markers.csv"))
-    raw_path = os.path.join(RAW_DIR, "instate_v2_surname_state_prop_raw.csv.gz")
-    raw = pd.read_csv(raw_path)
+    raw_path = os.path.join(RAW_DIR, "instate_v2_surname_state_prop_raw.parquet")
+    raw = pd.read_parquet(raw_path)
 
     rows = []
     for anchor_state, group in markers_df.groupby("anchor_state"):

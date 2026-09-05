@@ -3,3 +3,6 @@ instate
 pandas
 numpy
 statsmodels
+pyarrow
+requests
+python-Levenshtein

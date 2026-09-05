@@ -4,16 +4,20 @@ Both upstream packages named in `docs/PLAN.md` §2 turned out to have live-downl
 
 ## Surnames (`freq_surnames.csv`)
 
-**Source:** `instate_unique_ln_state_prop_v2.csv.gz` — 1,915,898 unique surnames x 34 states/UTs, columns are each surname's record-weighted share of its `total_n` found in that state, from the 2017 Indian electoral rolls (Sood & Dhingra, arXiv 2303.06823).
+**Source:** `instate_unique_ln_state_prop_v2.parquet` — 1,915,898 unique surnames x 34 states/UTs, columns are each surname's record-weighted share of its `total_n` found in that state, from the 2017 Indian electoral rolls (Sood & Dhingra, arXiv 2303.06823).
 
-**Actual URL used:**
-`https://raw.githubusercontent.com/appeler/instate/v2.0.0/src/instate/data/instate_unique_ln_state_prop_v2.csv.gz`
+**Actual URL used (updated 2026-09-05, see history below):**
+`https://huggingface.co/gojiberries/instate/resolve/main/instate_unique_ln_state_prop_v2.parquet`
 
 **Why not the pip package:** `pip install instate` currently installs `0.1.7` (the latest release on PyPI), whose `load_instate_data()` hardcodes a download URL to `https://github.com/appeler/instate/raw/main/data/instate_unique_ln_state_prop_v1.csv.gz`. That file no longer exists on the `main` branch — the upstream repo went through a rewrite (`v3.0.0`, tagged 2026-08-19) that moved to a Hugging-Face-hosted neural model with a single-surname "abstain" API (see their `CHANGELOG.md` and `MODEL_CARD.md`) and dropped the bulk downloadable table from the live repo. The live URL now 404s.
 
-**What we did instead:** the same table is still present, byte-for-byte, inside the `v2.0.0` git tag (a public, MIT-licensed, immutable release), fetchable directly via `raw.githubusercontent.com/.../v2.0.0/...`. This is using a stable published artifact of the same open-source project, not bypassing any access control — the maintainers changed their live serving path, not the license or public availability of this specific historical release.
+**Source history:** first pulled from the `v2.0.0` git tag on GitHub (a snapshot of the same table, still legitimately public but effectively an archaeological workaround). Switched to the Hugging Face URL above the same day after the project owner found `gojiberries/instate`'s model card, which states the repo is served "at an immutable commit so a released package cannot silently change models" — the maintainers' own current, intentionally-versioned distribution point, on infrastructure independent of the Dataverse outage below. **Verified byte-identical** to the old git-tag source before switching (same shape 1,915,898 × 36, same `total_n` sum 699,893,539, same values in every row checked) — this is a provenance upgrade, not a data change.
 
-**Caveat:** `total_n` and the per-state shares come from `v2.0.0`'s snapshot of the electoral-roll corpus; if a future `instate` release reprocesses the underlying rolls differently, this table won't reflect that. Revisit if this project is ever revived after a long gap.
+**Caveat:** `total_n` and the per-state shares come from this snapshot of the electoral-roll corpus; if a future `instate` release reprocesses the underlying rolls differently, this table won't reflect that. Revisit if this project is ever revived after a long gap.
+
+**Checked and rejected as a first-names fix:** `gojiberries/naampy` also exists on Hugging Face, but its bulk file (`naampy_v2_1k_global_binary.parquet`) is a **national-only aggregate** — 40,581 first names with just global male/female counts, no state column. The org appears to have deliberately dropped the regional breakdown for first names in this new architecture (unlike surnames, where the full state-level table is still shipped). Doesn't solve the first-names blocker below. Logged in `CITATIONS.md`.
+
+**Checked and rejected as a pranaam fix:** `gojiberries/pranaam` also has real model weights on HF (safetensors, English + Hindi) — but the currently released pip package (0.9.0, same as the newest GitHub tag) doesn't know how to load them. The loading code for that (`pranaam/model_v3.py` on the `main` branch) is low-level, unreleased, and not wired into any public function yet. pranaam is mid-migration, same as instate was, just not far enough along. Worth rechecking in a few weeks.
 
 ## First names (`freq_firstnames.csv`)
 
