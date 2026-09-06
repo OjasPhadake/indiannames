@@ -114,10 +114,16 @@ FIRST_NAME_BANK = {
 }
 
 REGION_SURNAME_MAP = {
+    # Hindu_North/West gained Bhatt as a second listing (Ojas's call:
+    # Bhatt genuinely has real presence in both -- North per the data,
+    # 66%; West per the traditional Gujarati-Brahmin association).
+    # Hindu_West/South gained Shetty as a second listing likewise (West
+    # per real data, 92%; South kept for the well-known Karnataka
+    # association). See DECISIONS.md #7.
     "Hindu_North": [
         "Sharma", "Gupta", "Singh", "Yadav", "Tiwari", "Mishra",
         "Pandey", "Tripathi", "Srivastava", "Verma", "Agarwal",
-        "Jaiswal", "Chauhan", "Saxena", "Bhardwaj",
+        "Jaiswal", "Chauhan", "Saxena", "Bhardwaj", "Bhatt",
     ],
     "Hindu_South": [
         "Iyer", "Nair", "Pillai", "Rao", "Reddy",
@@ -128,46 +134,60 @@ REGION_SURNAME_MAP = {
         "Desai", "Patil", "Shah", "Mehta", "Joshi",
         "Kulkarni", "Pawar", "Chavan", "Jadhav", "Bhosale",
         "Vyas", "Trivedi", "Parikh", "Modi", "Bhatt",
+        "Shetty",
     ],
     "Hindu_East": [
         "Banerjee", "Chatterjee", "Das", "Sen", "Roy",
         "Bose", "Mukherjee", "Bhattacharya", "Saha", "Ghosh",
         "Pal", "Mitra", "Paul", "Chakraborty", "Biswas",
+        "Sikder",  # moved here from Muslim_Northeast -- Sikdar/Sikder is a real Hindu Bengali surname too, per Ojas's call. Note: real regional data actually shows this name 78% concentrated in South, not East/Bengal -- likely a spelling collision with an unrelated Southern name, kept as Hindu_East on cultural-knowledge grounds despite that. See DECISIONS.md #7.
     ],
     "Hindu_Northeast": [
         "Saikia", "Borah", "Gogoi", "Dutta", "Baruah",
         "Kalita", "Hazarika", "Mahanta", "Phukan", "Sarma",
         "Barman", "Deb", "Bora", "Bordoloi", "Chetia",
     ],
+    # Muslim region lists: 2026-09-06, second QA pass (region-vs-real-data
+    # check, see DECISIONS.md #7). Ansari and Jafri moved off North (real
+    # data: Ansari is East/West-dominant, Jafri is West-dominant). Gazi,
+    # Rangwala, Usmani moved onto North (all real-data North-dominant;
+    # Rangwala had literally 0% real presence in West). Pasha moved onto
+    # West (real-data West-dominant). Ahmed, Ansari, Chaudhary also added
+    # to East per Ojas's "top-2 regions for huge names" call -- all three
+    # are large enough to have real, substantial presence in more than
+    # one region. Chaudhary removed from West (0% real presence there).
     "Muslim_North": [
-        "Khan", "Ansari", "Siddiqui", "Qureshi", "Ahmed",
-        "Hussain", "Mirza", "Syed", "Farooqui", "Hashmi",
-        "Rehman", "Abbasi", "Alvi", "Azmi", "Jafri",
-        "Kayani", "Lodhi", "Nadwi", "Rizvi", "Zaidi",
-        "Bukhari", "Warsi", "Naqvi", "Kazmi", "Noorani",
-        "Dehlvi", "Amrohi", "Chishti", "Ghori", "Iqbal",
+        "Khan", "Siddiqui", "Qureshi", "Ahmed", "Hussain",
+        "Mirza", "Syed", "Farooqui", "Hashmi", "Rehman",
+        "Abbasi", "Alvi", "Azmi", "Kayani", "Lodhi",
+        "Nadwi", "Rizvi", "Zaidi", "Bukhari", "Warsi",
+        "Naqvi", "Kazmi", "Noorani", "Dehlvi", "Amrohi",
+        "Chishti", "Ghori", "Iqbal", "Rangwala", "Usmani",
+        "Gazi", "Bohra", "Chaudhary",
     ],
     "Muslim_South": [
         "Rowther", "Marakkayar", "Lebbai", "Ravuthar", "Sait",
-        "Kunhi", "Musaliar", "Thangal", "Haji", "Pasha",
-        "Baig", "Moosa", "Kutty", "Koya", "Ismail",
-        "Basheer", "Kunhali", "Marakkar", "Beary", "Bepari",
+        "Kunhi", "Musaliar", "Thangal", "Haji", "Baig",
+        "Moosa", "Kutty", "Koya", "Ismail", "Basheer",
+        "Kunhali", "Marakkar", "Beary", "Bepari", "Yousuf",
+        "Daniyal",
     ],
     "Muslim_West": [
-        "Bohra", "Khoja", "Memon", "Vora", "Rangwala",
-        "Ghadiyali", "Attarwala", "Bagasrawala", "Kapadia", "Surtee",
-        "Amreliwala", "Dholkawala", "Contractor", "Petiwala", "Rajkotwala",
-        "Chaudhary", "Kazi", "Usmani", "Patel", "Shaikh",
+        "Khoja", "Memon", "Vora", "Ghadiyali", "Attarwala",
+        "Bagasrawala", "Kapadia", "Surtee", "Amreliwala", "Dholkawala",
+        "Contractor", "Petiwala", "Rajkotwala", "Kazi", "Patel",
+        "Shaikh", "Jafri", "Pasha", "Ansari",
     ],
     "Muslim_East": [
         "Mondal", "Molla", "Sheikh", "Pramanik", "Munshi",
         "Sardar", "Talukdar", "Miah", "Mazumder", "Bhuiyan",
-        "Sarkar", "Fakir", "Gazi", "Biswas", "Halder",
+        "Sarkar", "Fakir", "Biswas", "Halder", "Ahmed",
+        "Ansari", "Chaudhary",
     ],
     "Muslim_Northeast": [
         "Barbhuiya", "Laskar", "Borbhuiya", "Choudhury", "Uddin",
         "Bhuyan", "Rahman", "Ali", "Gani", "Islam",
-        "Sikder", "Deka", "Nasir", "Karim", "Habib",
+        "Deka", "Nasir", "Karim", "Habib",
     ],
     "Sikh": [
         "Singh", "Kaur", "Gill", "Dhillon", "Sandhu", "Brar",
@@ -190,11 +210,11 @@ REGION_SURNAME_MAP = {
         "Thomas", "Mathew", "Kurian", "Jose", "Abraham",
         "Varghese", "George", "John", "Philip", "Paul",
         "Joseph", "Chacko", "Jacob", "Koshy", "Cherian",
-        "Daniel", "Isaac", "Stephen", "Antony", "Fernandez",
+        "Daniel", "Stephen", "Antony", "Fernandez",
         "Ninan", "Zachariah", "Chandy", "Mammen", "Oommen",
         "Eapen", "Pothen", "Alexander", "Yohannan", "Skariah",
         "Mathan", "Kuriakose", "Thottathil", "Kutty", "Mani",
-        "Samuel", "Punnoose", "Ittoop",
+        "Samuel", "Punnoose", "Ittoop", "Wilson",  # was moved from Christian_North -- real data is 91% South, not North. See DECISIONS.md #7.
     ],
     "Christian_West": [
         "D'Souza", "Fernandes", "Rodrigues", "Lobo", "Pereira",
@@ -206,11 +226,20 @@ REGION_SURNAME_MAP = {
         "Gomes", "Lima", "Machado", "Saldanha", "Ribeiro",
         "Nazareth", "Athaide",
     ],
+    # Christian_North: 2026-09-06, second QA pass. Removed Sahni (a
+    # Punjabi Khatri Hindu/Sikh surname -- no real Christian association;
+    # this project's own Sikh surname list already independently has
+    # Sahni too, consistent with that). Removed Daniyal and Yousuf,
+    # moved to Muslim_South -- both read as more Muslim/Urdu-associated
+    # than Christian, and real data is 73-95% South, not North. Removed
+    # Wilson, moved to Christian_South (91% real South). Added Isaac,
+    # moved from Christian_South (75% real North, the opposite direction
+    # of Wilson's move). See DECISIONS.md #7.
     "Christian_North": [
         "Masih", "Lal", "Prakash", "Chand", "Bhatti",
         "Sagar", "Yaqub", "Yohanan", "Barkat", "Nazir",
-        "Khokhar", "Gill", "Anand", "Daniyal", "Sahni",
-        "Bhatia", "Wilson", "Chandra", "Elias", "Yousuf",
+        "Khokhar", "Gill", "Anand", "Bhatia", "Chandra",
+        "Elias", "Isaac",
     ],
     "Christian_East": [
         "Tirkey", "Toppo", "Kerketta", "Kujur", "Minj",

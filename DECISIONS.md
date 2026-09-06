@@ -133,12 +133,52 @@ Interesting confirmation from the fix itself: "Sana" is *still* in the final cor
 
 This project's own marker lists (`data/mappings/*_markers.csv`) were checked the same way and came back clean — no confirmed errors found in first-name gender (they were never gender-tagged to begin with, so there was nothing to contradict) or surname/religion pairing.
 
-### Checked and flagged, but NOT changed — evidence was ambiguous, not confirmed-wrong
+### Checked and flagged, initially left alone — then Ojas reviewed and decided (see §8)
 
-A confident wrong "fix" here would be worse than leaving an uncertain entry alone, so these are reported rather than acted on:
+A confident wrong "fix" here would have been worse than leaving an uncertain entry alone, so these were reported rather than acted on unilaterally. Ojas reviewed all of them and gave explicit decisions — see §8 for what was actually done with each.
 
-- **Pawar** (Hindu_West) — real data is 94% North, not West. Likely explanation: "Pawar" the Maharashtrian Maratha clan name and "Panwar"/"Pawar" the Rajput clan name common in Rajasthan/UP/MP are different surnames that happen to romanize identically — the aggregate count probably blends two real, distinct surnames rather than mislabelling one.
-- **Shetty** (Hindu_South) — real data is 92% West. Shetty is culturally strongly associated with coastal Karnataka; the West-heavy real count may reflect generations of migration to Mumbai, a genuine regional data quirk rather than a labelling error, or (less likely) a spelling collision. Not confident enough to touch.
-- **Bohra** (Muslim_West) — real data is 95% North. The Dawoodi Bohra community is historically Gujarat/Mumbai-based, but "Bohra" as a bare surname string may also be used by unrelated communities elsewhere, especially at this scale (aggregate counts don't carry community context).
-- **Ansari, Chaudhary** (Muslim_North, Muslim_West) — both are real, very large, genuinely multi-region surnames (Ansari: 1.65M total, Chaudhary: 1.2M total) that happen to have their single biggest concentration in East rather than the claimed region. Not wrong so much as under-specified by a single-region tag — these names are legitimately common in several regions at once.
-- **Singh** (both Hindu_North and Sikh, in Ojas's own list) — not an error, a real and well-documented ambiguity (used by Hindu Rajputs and other communities, not just Sikhs). Already flagged in conversation when first noticed; left as-is in both places since the list creator put it there deliberately in both, correctly reflecting real-world overlap.
+- **Pawar** (Hindu_West) — real data is 94% North, not West. Likely explanation: "Pawar" the Maharashtrian Maratha clan name and "Panwar"/"Pawar" the Rajput clan name common in Rajasthan/UP/MP are different surnames that happen to romanize identically.
+- **Shetty** (Hindu_South) — real data is 92% West. Culturally strongly associated with coastal Karnataka; the West-heavy real count may reflect generations of migration to Mumbai, or a spelling collision.
+- **Bohra** (Muslim_West) — real data is 95% North.
+- **Ansari, Chaudhary** (Muslim_North, Muslim_West) — both real, very large, genuinely multi-region surnames.
+- **Singh** (both Hindu_North and Sikh, in Ojas's own list) — not an error, a real and well-documented ambiguity. Left as-is in both places, no decision needed.
+
+## 8. Second QA round: region reassignments for everything flagged in §7 (2026-09-06)
+
+Ojas reviewed every item from §7's automated region-mismatch check (not just the 5 originally reported — a fuller pull turned up 24) and gave an explicit decision for each. All applied to `data/mappings/user_provided_names_raw.py`.
+
+### What moved where
+
+| Name | Was | Now | Basis |
+|---|---|---|---|
+| Sahni | Christian_North | **Removed from Christian entirely** | Real Punjabi Khatri Hindu/Sikh surname, no Christian association. Already correctly present in this project's own Sikh surname list, independently. |
+| Yousuf | Christian_North | **Muslim_South** | Reads more Muslim than Christian in Indian usage; real data 95% South |
+| Daniyal | Christian_North | **Muslim_South** | Same reasoning as Yousuf; real data 73% South |
+| Wilson | Christian_North | **Christian_South** | Genuinely Christian, wrong region; real data 91% South |
+| Isaac | Christian_South | **Christian_North** | Genuinely Christian, wrong region; real data 75% North (opposite direction from Wilson, confirmed independently) |
+| Rangwala | Muslim_West | **Muslim_North** | Real data 91% North, literally 0% West |
+| Usmani | Muslim_West | **Muslim_North** | Real data 84% North |
+| Bohra | Muslim_West | **Muslim_North** | Real data 95% North |
+| Jafri | Muslim_North | **Muslim_West** | Real data 89% West |
+| Pasha | Muslim_South | **Muslim_West** | Real data 81% West |
+| Gazi | Muslim_East | **Muslim_North** | Real data 83% North |
+| Sikder | Muslim_Northeast | **Hindu_East** | Religion change, not just region — Sikdar/Sikder is a real Hindu Bengali surname too, per Ojas's cultural knowledge. **Caveat kept on record**: real regional data actually shows this name 78% South, not East/Bengal, likely a spelling collision with an unrelated Southern name — filed as East anyway on Ojas's explicit call, evidence noted rather than silently overridden. |
+| Bhatt | Hindu_West only | **Hindu_North + Hindu_West (both)** | Ojas's call — real presence in both (66% North per data, traditional Gujarati-Brahmin association in West) |
+| Shetty | Hindu_South only | **Hindu_South + Hindu_West (both)** | Ojas's call — West per real data (92%), South kept for the well-known Karnataka association |
+| Ansari | Muslim_North only | **Muslim_East + Muslim_West** (in the source list — see final-output caveat below) | Top-2 by real share: East 73%, West 16% (North is actually 3rd at 10%, so removed from North) |
+| Ahmed | Muslim_North only | **Muslim_North + Muslim_East** | Top-2: East 82%, North 11% |
+| Chaudhary | Muslim_West only | **Muslim_North + Muslim_East** | Top-2: East 73%, North 27%. Missed adding this to Muslim_North on the first attempt — caught in the verification pass and fixed before this was reported. |
+
+### Two mistakes caught during verification, before reporting
+
+Both found by re-checking the actual pipeline output against what was intended, not just trusting the edit was correct:
+
+1. **Bohra** was removed from `Muslim_West` but the addition to `Muslim_North` was initially forgotten — caught by an absence check, fixed immediately.
+2. **Chaudhary** was added to `Muslim_East` but not `Muslim_North` as intended (the "top-2 regions" call needed both) — caught the same way, fixed before this report.
+
+### A structural wrinkle worth understanding: eligibility in the source list is not the same as appearing in the final ranked output
+
+Two things came up that aren't bugs, but need explaining:
+
+- **Ansari ended up in all 4 regions in the final `name_bank_expanded.csv`, not just the intended East+West.** This project's own marker list (`muslim_surname_markers.csv`) also contains "ansari" with no region restriction, so it's an eligible candidate everywhere real frequency supports it — and it does: 264,557 in West and 14,355 in South both clear those regions' top-25 cut on their own merit. This is arguably *more* statistically honest than an artificial 2-region cap would have been, since it's now governed entirely by where the real data actually supports it, not an editorial choice. Flagged here rather than silently allowed to diverge from the literal "top 2" instruction.
+- **Several moved/kept names don't appear in the final ranked output at all**, despite being correctly present in the source list: Yousuf, Daniyal, Rangwala, Usmani, Gazi, Sikder, Bohra, and — notably — **Pawar**, which Ojas explicitly said to leave untouched. This isn't a bug or an accidental removal. Selection ranks by a name's real count *specific to that region* (not its national total), and for these names that regional-specific count is small enough to be outranked by ~25-50 other real candidates in the same region. Pawar's national total is large (39,251), but its real West-specific count is only 1,938 — smaller than every other real West Hindu surname in this corpus — so it doesn't crack West's top 25, exactly the same North-collision effect already suspected in §7, just now visible in the ranking rather than just the region-share percentage. Nothing was deleted from the source list; the real data simply doesn't rank these names competitively in their new (or, for Pawar, unchanged) region.
