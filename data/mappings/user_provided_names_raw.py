@@ -89,9 +89,12 @@ FIRST_NAME_BANK = {
         "Rajdeep", "Ravneet", "Rajinder", "Ravinder", "Jasveer",
         "Parminder", "Navneet",
     ],
+    # Anita and Nisha removed 2026-09-06 -- both were also claimed by this
+    # project's own Hindu marker list; Ojas's call was to keep them Hindu,
+    # not Christian. See DECISIONS.md #9.
     "Christian_Female": [
-        "Mary", "Flory", "Anita", "Sonia", "Preethi",  # was "Rosario" -- real electoral-roll data is 93% male for Rosario; Flory is 99% female, classifier-confirmed Christian. See DECISIONS.md #7.
-        "Lissy", "Sheena", "Nisha", "Bindu", "Teresa",
+        "Mary", "Flory", "Sonia", "Preethi",  # was "Rosario" -- real electoral-roll data is 93% male for Rosario; Flory is 99% female, classifier-confirmed Christian. See DECISIONS.md #7.
+        "Lissy", "Sheena", "Bindu", "Teresa",
         "Clara", "Joanna", "Seema", "Shiny", "Cynthia",
         "Elizabeth", "Grace", "Jennifer", "Rebecca", "Rachel",
         "Sophia", "Angela", "Monica", "Gloria", "Helen",
@@ -165,17 +168,24 @@ REGION_SURNAME_MAP = {
         "Chishti", "Ghori", "Iqbal", "Rangwala", "Usmani",
         "Gazi", "Bohra", "Chaudhary",
     ],
+    # Muslim_South: Kutty removed 2026-09-06 -- also independently on this
+    # project's own Christian marker list, and Ojas's call was to keep it
+    # Christian (two-source backing there vs. one here). See DECISIONS.md #9.
     "Muslim_South": [
         "Rowther", "Marakkayar", "Lebbai", "Ravuthar", "Sait",
         "Kunhi", "Musaliar", "Thangal", "Haji", "Baig",
-        "Moosa", "Kutty", "Koya", "Ismail", "Basheer",
+        "Moosa", "Koya", "Ismail", "Basheer",
         "Kunhali", "Marakkar", "Beary", "Bepari", "Yousuf",
         "Daniyal",
     ],
+    # Muslim_West: Patel removed 2026-09-06 -- also independently on this
+    # project's own Hindu marker list (same real West count on both
+    # sides). Patel is overwhelmingly Hindu/Jain in reality; Ojas's call
+    # was to keep it Hindu. See DECISIONS.md #9.
     "Muslim_West": [
         "Khoja", "Memon", "Vora", "Ghadiyali", "Attarwala",
         "Bagasrawala", "Kapadia", "Surtee", "Amreliwala", "Dholkawala",
-        "Contractor", "Petiwala", "Rajkotwala", "Kazi", "Patel",
+        "Contractor", "Petiwala", "Rajkotwala", "Kazi",
         "Shaikh", "Jafri", "Pasha", "Ansari",
     ],
     "Muslim_East": [
@@ -235,10 +245,15 @@ REGION_SURNAME_MAP = {
     # Wilson, moved to Christian_South (91% real South). Added Isaac,
     # moved from Christian_South (75% real North, the opposite direction
     # of Wilson's move). See DECISIONS.md #7.
+    # Bhatti and Gill removed 2026-09-06 -- both already independently on
+    # this project's own Sikh surname list (Gill also on Ojas's own Sikh
+    # list). Both are well-known Punjabi Jat clan names with no real
+    # Christian association found; Ojas's call was to keep them Sikh.
+    # See DECISIONS.md #9.
     "Christian_North": [
-        "Masih", "Lal", "Prakash", "Chand", "Bhatti",
+        "Masih", "Lal", "Prakash", "Chand",
         "Sagar", "Yaqub", "Yohanan", "Barkat", "Nazir",
-        "Khokhar", "Gill", "Anand", "Bhatia", "Chandra",
+        "Khokhar", "Anand", "Bhatia", "Chandra",
         "Elias", "Isaac",
     ],
     "Christian_East": [

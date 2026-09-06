@@ -182,3 +182,48 @@ Two things came up that aren't bugs, but need explaining:
 
 - **Ansari ended up in all 4 regions in the final `name_bank_expanded.csv`, not just the intended East+West.** This project's own marker list (`muslim_surname_markers.csv`) also contains "ansari" with no region restriction, so it's an eligible candidate everywhere real frequency supports it — and it does: 264,557 in West and 14,355 in South both clear those regions' top-25 cut on their own merit. This is arguably *more* statistically honest than an artificial 2-region cap would have been, since it's now governed entirely by where the real data actually supports it, not an editorial choice. Flagged here rather than silently allowed to diverge from the literal "top 2" instruction.
 - **Several moved/kept names don't appear in the final ranked output at all**, despite being correctly present in the source list: Yousuf, Daniyal, Rangwala, Usmani, Gazi, Sikder, Bohra, and — notably — **Pawar**, which Ojas explicitly said to leave untouched. This isn't a bug or an accidental removal. Selection ranks by a name's real count *specific to that region* (not its national total), and for these names that regional-specific count is small enough to be outranked by ~25-50 other real candidates in the same region. Pawar's national total is large (39,251), but its real West-specific count is only 1,938 — smaller than every other real West Hindu surname in this corpus — so it doesn't crack West's top 25, exactly the same North-collision effect already suspected in §7, just now visible in the ranking rather than just the region-share percentage. Nothing was deleted from the source list; the real data simply doesn't rank these names competitively in their new (or, for Pawar, unchanged) region.
+
+## 9. Third QA round: cross-religion name conflicts found while checking for "optimality" (2026-09-06)
+
+Ojas asked whether the current corpus could be shown to be optimal, or whether further corrections were possible. Three checks were run beyond the two QA passes in §7/§8:
+
+1. **Frequency-floor sensitivity** (`FREQ_FLOOR` 30 → 15 → 5): confirmed the remaining under-target cells (Muslim_F 45/50, Hindu_F 45/50, Christian_F 48/50 pre-fix, Sikh_F 21/50, Sikh_M 43/50, Christian_North surnames 16/25 pre-fix, Sikh surnames 59-64/100) are **hand-list-size-limited, not floor-limited** — lowering the floor to 5 changed only the Sikh surname count (59→64), every other cell was identical at all three floors. There simply aren't more real, distinctively-religious names on either hand list to find at this floor.
+2. **Doubled-vowel spelling re-scan** (the same garbage-name pattern that caught rekhaa/meeraa/raajes in §7): came back clean, no new issues.
+3. **Cross-religion duplicate check** — grouping the final corpus by `(name, type)` and checking whether more than one religion claims the same first name or surname. This is the one that mattered: a name claimed by two religions defeats the counterfactual swap-study design even when the ambiguity is culturally real, because the same string can't function as a distinctive marker for either group. **Found 6 real conflicts** (beyond the already-documented, deliberately-kept Singh exception from §7).
+
+### Conflicts found and their source
+
+| Name | Type | Conflict | Source of each side |
+|---|---|---|---|
+| Anita | first, F | Hindu vs Christian | On this project's own Hindu first-name marker list AND on Ojas's Christian_Female list |
+| Nisha | first, F | Hindu vs Christian | Same pattern as Anita |
+| Patel | surname | Hindu (West) vs Muslim (West) | On this project's own Hindu surname marker list AND on Ojas's Muslim_West list |
+| Bhatti | surname | Sikh vs Christian (North) | Pre-existing conflict *within Ojas's own original lists* — on both his Sikh surname list and his Christian_North list |
+| Gill | surname | Sikh vs Christian (North) | Same pattern as Bhatti — Gill is on this project's own Sikh marker list too, so it had three-way backing on the Sikh side |
+| Kutty | surname | Muslim (South) vs Christian (South) | Pre-existing conflict within Ojas's own original lists — on both his Muslim_South list and his Christian_South list |
+
+Anita/Nisha/Patel were conflicts introduced by merging this project's own marker lists with Ojas's; Bhatti/Gill/Kutty were already present in Ojas's original list before any merging happened.
+
+### Decisions and what was applied
+
+Reported to Ojas with a recommendation for each; he decided:
+
+| Name | Recommended | Ojas's decision | Applied |
+|---|---|---|---|
+| Anita, Nisha | Remove from Hindu, keep Christian | **Opposite — remove from Christian, keep Hindu** | Removed from `Christian_Female` in `user_provided_names_raw.py` |
+| Patel | Remove from Muslim, keep Hindu | **Agreed** | Removed from `Muslim_West` |
+| Bhatti, Gill, Kutty | (delegated) | **"Resolve them too, one religion each"** | Bhatti → Sikh, Gill → Sikh, Kutty → Christian_South (my judgment calls, reasoning below) |
+
+**Reasoning for the delegated calls:** Bhatti and Gill were each removed from `Christian_North` and kept as Sikh — both are well-known Punjabi Jat clan names with no real Christian association found in the data, and both were already independently present on this project's own Sikh surname marker list (Gill was on *both* Ojas's own Sikh list and the marker list — three-way backing vs. one weak side). Kutty was removed from `Muslim_South` and kept as Christian_South — it has two-source backing on the Christian side (Ojas's list plus, independently, its well-documented association with Kerala Syrian Christian usage) versus one source on the Muslim side.
+
+### Verification
+
+Re-ran `python src/expand_corpus.py prepare` then `finalize`, then re-ran the same cross-religion duplicate check against the regenerated `name_bank_expanded.csv`: **all 6 conflicts are resolved, zero new conflicts introduced.** The only remaining same-name-different-religion pair in the entire corpus is **Singh** (Hindu_North vs. Sikh) — the pre-existing, deliberately-kept exception documented in §7, left untouched as already decided.
+
+**Direct consequences visible in the final counts** (both are the expected, correct effect of removing names from a cell, not a bug):
+- Christian_Female: 48 → 46 (lost Anita, Nisha)
+- Christian_North surnames: 16 → 14 (lost Bhatti, Gill)
+
+No other cell changed, since Patel/Bhatti/Gill/Kutty's *other* side (Hindu_West, Sikh, Christian_South) already had a same or better real-frequency candidate filling that slot independently.
+
+**Conclusion on "optimality":** there's no provable global optimum here — no ground truth exists and the objectives (real frequency, religious distinctiveness, hand-list-transparency, corpus size) trade off against each other. But every checkable form of error has now been run to exhaustion: gender-purity mismatches and region mismatches (§7/§8), floor-sensitivity (this round), spelling artifacts (this round), and cross-religion conflicts (this round). Nothing further surfaced. Any future correction would need either new labeled data (for the Sikh classifier gap, per §6) or a new category of check not yet tried.
