@@ -1,11 +1,15 @@
 # Provided by Ojas (project owner), 2026-09-06, as a third input to merge
 # alongside the hand-curated marker lists in this directory and the
 # Chaturvedi classifier's predictions -- see CITATIONS.md and
-# src/merge_expanded_corpus.py for how this gets combined and re-ranked
-# against real electoral-roll frequency data, not used as-is.
+# src/expand_corpus.py for how this gets combined and re-ranked against
+# real electoral-roll frequency data, not used as-is.
 #
-# Kept verbatim (not reformatted) so it's traceable back to exactly what
-# was pasted.
+# UPDATE 2026-09-06: Ojas asked for a one-by-one QA pass against real
+# electoral-roll data. 6 corrections applied below (each marked inline
+# with what changed and why -- see DECISIONS.md #7 for the full audit,
+# including cases checked and left alone because the evidence was
+# ambiguous rather than a clear error). Everything else is still exactly
+# as originally pasted.
 
 FIRST_NAME_BANK = {
     "Hindu_Female": [
@@ -31,7 +35,7 @@ FIRST_NAME_BANK = {
         "Kunal", "Saurabh", "Neeraj", "Rohit", "Anand",
     ],
     "Muslim_Female": [
-        "Fatima", "Zara", "Ayesha", "Nadia", "Sana",
+        "Fatima", "Zara", "Ayesha", "Nadia", "Shahida",  # was "Sana" -- real electoral-roll data is 72% male for Sana; Shahida is 99% female, classifier-confirmed Muslim (88%). See DECISIONS.md #7.
         "Rukhsar", "Afreen", "Hina", "Mariam", "Noor",
         "Saira", "Asma", "Bushra", "Shabana", "Rehana",
         "Alina", "Iqra", "Samina", "Humaira", "Meher",
@@ -54,30 +58,39 @@ FIRST_NAME_BANK = {
         "Tabrez", "Yasin", "Jamal", "Ilyas", "Mahmud",
         "Mansoor", "Sultan",
     ],
+    # Sikh_Female/Sikh_Male: 2026-09-06 QA pass moved 9 names off Female
+    # onto Male (Kuldeep, Manveer, Rajdeep, Ravneet, Rajinder, Ravinder,
+    # Jasveer, Parminder, Navneet -- each is real-data majority-male,
+    # 66-96% male, not the near-50/50 "genuinely unisex" pattern most of
+    # this list actually is), moved Gurinder off Male onto Female (66%
+    # female in real data), and removed Manpreet from Male (it was
+    # already correctly listed under Female; real data is 70% female).
+    # See DECISIONS.md #7.
     "Sikh_Female": [
-        "Harpreet", "Simran", "Navneet", "Manpreet", "Gurpreet",
-        "Jaspreet", "Parminder", "Rajinder", "Sukhpreet", "Kirandeep",
-        "Amandeep", "Jasleen", "Ravneet", "Harsimran", "Satinder",
-        "Navjot", "Ramandeep", "Harleen", "Gurleen", "Mandeep",
-        "Prabhjot", "Amrit", "Baljeet", "Kanwal", "Rajdeep",
-        "Kuldeep", "Charanjeet", "Supreet", "Ekjot", "Japneet",
-        "Ravinder", "Amanpreet", "Jasveer", "Harnoor", "Simerjeet",
-        "Manjot", "Karamjit", "Sukhjeet", "Rupinder", "Amanjot",
-        "Jasneet", "Baljinder", "Manveer", "Simrat", "Ramanjit",
+        "Harpreet", "Simran", "Manpreet", "Gurpreet", "Jaspreet",
+        "Sukhpreet", "Kirandeep", "Amandeep", "Jasleen", "Harsimran",
+        "Satinder", "Navjot", "Ramandeep", "Harleen", "Gurleen",
+        "Mandeep", "Prabhjot", "Amrit", "Baljeet", "Kanwal",
+        "Charanjeet", "Supreet", "Ekjot", "Japneet", "Amanpreet",
+        "Harnoor", "Simerjeet", "Manjot", "Karamjit", "Sukhjeet",
+        "Rupinder", "Amanjot", "Jasneet", "Baljinder", "Simrat",
+        "Ramanjit", "Gurinder",
     ],
     "Sikh_Male": [
-        "Gurpreet", "Jaspreet", "Manpreet", "Harjinder", "Kulwinder",
-        "Sukhwinder", "Paramjit", "Balwinder", "Amarjit", "Navdeep",
-        "Rajvir", "Gurinder", "Tejinder", "Daljit", "Satnam",
-        "Hardeep", "Inderjit", "Jagdeep", "Harmeet", "Mandeep",
-        "Gurtej", "Arshdeep", "Dilpreet", "Prabhjot", "Kanwar",
-        "Ranjit", "Gagandeep", "Charanjit", "Amritpal", "Jaswant",
-        "Jagjit", "Balbir", "Sukhdev", "Amarinder", "Jaskaran",
-        "Harvinder", "Ranjodh", "Simarpreet", "Gurmukh", "Baldev",
-        "Rajpal", "Devinder", "Manjinder", "Sukhbir", "Jasbir",
+        "Gurpreet", "Jaspreet", "Harjinder", "Kulwinder", "Sukhwinder",
+        "Paramjit", "Balwinder", "Amarjit", "Navdeep", "Rajvir",
+        "Tejinder", "Daljit", "Satnam", "Hardeep", "Inderjit",
+        "Jagdeep", "Harmeet", "Mandeep", "Gurtej", "Arshdeep",
+        "Dilpreet", "Prabhjot", "Kanwar", "Ranjit", "Gagandeep",
+        "Charanjit", "Amritpal", "Jaswant", "Jagjit", "Balbir",
+        "Sukhdev", "Amarinder", "Jaskaran", "Harvinder", "Ranjodh",
+        "Simarpreet", "Gurmukh", "Baldev", "Rajpal", "Devinder",
+        "Manjinder", "Sukhbir", "Jasbir", "Kuldeep", "Manveer",
+        "Rajdeep", "Ravneet", "Rajinder", "Ravinder", "Jasveer",
+        "Parminder", "Navneet",
     ],
     "Christian_Female": [
-        "Mary", "Rosario", "Anita", "Sonia", "Preethi",
+        "Mary", "Flory", "Anita", "Sonia", "Preethi",  # was "Rosario" -- real electoral-roll data is 93% male for Rosario; Flory is 99% female, classifier-confirmed Christian. See DECISIONS.md #7.
         "Lissy", "Sheena", "Nisha", "Bindu", "Teresa",
         "Clara", "Joanna", "Seema", "Shiny", "Cynthia",
         "Elizabeth", "Grace", "Jennifer", "Rebecca", "Rachel",
@@ -89,7 +102,7 @@ FIRST_NAME_BANK = {
     ],
     "Christian_Male": [
         "Joel", "Jijo", "Binu", "Shaji", "Joby",
-        "Biju", "Tijo", "Sijo", "Renji", "Anoop",
+        "Biju", "Tijo", "Sijo", "Renji", "Justin",  # was "Anoop" -- not distinctively Christian at all: 96% concentrated in North India with no Christian association in real data, and the classifier independently agrees (calls it Hindu, 47%). Justin is 99% male, classifier-confirmed Christian. See DECISIONS.md #7.
         "Kevin", "Ryan", "Samuel", "Daniel", "Joseph",
         "John", "Peter", "Thomas", "Mathew", "Andrew",
         "Aaron", "Nathan", "Neil", "Adrian", "Jerome",
@@ -109,7 +122,7 @@ REGION_SURNAME_MAP = {
     "Hindu_South": [
         "Iyer", "Nair", "Pillai", "Rao", "Reddy",
         "Subramanian", "Narayanan", "Srinivasan", "Menon", "Gowda",
-        "Acharya", "Hegde", "Shetty", "Prasad", "Naidu",
+        "Acharya", "Hegde", "Shetty", "Krishnan", "Naidu",  # was "Prasad" -- not distinctively South at all: 70% concentrated in North India in real data (it's a generic pan-Indian Hindu name). Krishnan is genuinely Tamil/South-distinctive, classifier-confirmed Hindu (97%). See DECISIONS.md #7.
     ],
     "Hindu_West": [
         "Desai", "Patil", "Shah", "Mehta", "Joshi",

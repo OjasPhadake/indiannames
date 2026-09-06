@@ -108,3 +108,37 @@ Ojas asked directly: can this rely more on the electoral-roll statistics and les
 **Verdict: rejected**, for a structural reason worth stating plainly: **soft-scoring only helps a thin cell if the classifier has good uncounted candidates left for that cell — and for Sikh specifically, it doesn't.** Lowering the hand-list weight further would only invite more of the same names in with higher scores, not better ones. This isn't a tuning problem; it's a ceiling on what this particular classifier knows about Sikh names.
 
 **What this means going forward:** the current design — hand lists gate membership, the classifier only cross-checks and never adds names — isn't a cautious placeholder waiting to be replaced by something more statistical. It's the actual right call given what's been tested. Getting genuinely more data-driven for the Sikh cell specifically would need a classifier that's actually seen this dataset's transliteration convention during its own training — i.e. new labeled data, not a smarter way to use the existing model's output.
+
+## 7. One-by-one QA pass on both hand lists against real electoral-roll data (2026-09-06)
+
+Ojas asked for every name in both hand lists (his `user_provided_names_raw.py` and this project's own marker lists) to be checked individually, with confirmed errors replaced by a real, statistically-verified, correctly-labelled alternative. Two objective checks were run against every first name and surname, plus a manual review — not just skimmed, actually checked against real data and re-verified with the classifier as a second opinion before touching anything.
+
+**Method:** for every first name, compared the list's claimed gender against the real male/female split in the electoral-roll data. For every surname, compared the claimed region against where the surname is actually most concentrated in real data. Anything flagged was cross-checked against the (raw, uncorrected) classifier's independent opinion before being treated as confirmed, and a replacement candidate was only accepted after its own real frequency, real gender purity, and classifier opinion all lined up — the same discipline as every other fix in this project, not a one-off exception.
+
+### Confirmed and fixed (6 changes, all in `data/mappings/user_provided_names_raw.py`, each marked inline)
+
+| Was | Religion/gender/region claimed | Real data says | Replaced with | Real data for replacement |
+|---|---|---|---|---|
+| Sana | Muslim_Female | 72% male (n=17,009) | **Shahida** | 99% female, n=14,300, classifier: Muslim 88% |
+| Rosario | Christian_Female | 93% male (n=1,069) | **Flory** | 99% female, n=549, classifier: Christian |
+| Anoop | Christian_Male | 96% North-concentrated, no Christian association; classifier independently calls it Hindu (47%) | **Justin** | 99% male, n=5,023, classifier: Christian |
+| Prasad | Hindu_South (surname) | 70% North-concentrated — a generic pan-Indian name, not distinctively Southern | **Krishnan** | n=591,010 in South, classifier: Hindu 97%, genuinely Tamil/South-distinctive |
+| 9 names* | Sikh_Female | 66-96% male in real data (not the near-50/50 genuinely-unisex pattern most of this list actually is) | moved to Sikh_Male | — |
+| Gurinder | Sikh_Male | 66% female | moved to Sikh_Female | — |
+| Manpreet | Sikh_Male (duplicate) | 70% female | removed from Male (already correctly on Female) | — |
+
+*Kuldeep, Manveer, Rajdeep, Ravneet, Rajinder, Ravinder, Jasveer, Parminder, Navneet.
+
+Interesting confirmation from the fix itself: "Sana" is *still* in the final corpus after this change — now correctly placed as **Muslim Male** (this project's own marker list has it too, with no gender pre-assigned, so the real data placed it correctly on its own). Nothing was lost; it just moved to where it actually belongs. The Sikh gender corrections were a net win beyond just accuracy — Sikh first names in `name_bank_expanded.csv` went from 54 to 64 as a direct result, since several of the moved names cleared the real-frequency floor as Male when they hadn't been eligible as Female.
+
+This project's own marker lists (`data/mappings/*_markers.csv`) were checked the same way and came back clean — no confirmed errors found in first-name gender (they were never gender-tagged to begin with, so there was nothing to contradict) or surname/religion pairing.
+
+### Checked and flagged, but NOT changed — evidence was ambiguous, not confirmed-wrong
+
+A confident wrong "fix" here would be worse than leaving an uncertain entry alone, so these are reported rather than acted on:
+
+- **Pawar** (Hindu_West) — real data is 94% North, not West. Likely explanation: "Pawar" the Maharashtrian Maratha clan name and "Panwar"/"Pawar" the Rajput clan name common in Rajasthan/UP/MP are different surnames that happen to romanize identically — the aggregate count probably blends two real, distinct surnames rather than mislabelling one.
+- **Shetty** (Hindu_South) — real data is 92% West. Shetty is culturally strongly associated with coastal Karnataka; the West-heavy real count may reflect generations of migration to Mumbai, a genuine regional data quirk rather than a labelling error, or (less likely) a spelling collision. Not confident enough to touch.
+- **Bohra** (Muslim_West) — real data is 95% North. The Dawoodi Bohra community is historically Gujarat/Mumbai-based, but "Bohra" as a bare surname string may also be used by unrelated communities elsewhere, especially at this scale (aggregate counts don't carry community context).
+- **Ansari, Chaudhary** (Muslim_North, Muslim_West) — both are real, very large, genuinely multi-region surnames (Ansari: 1.65M total, Chaudhary: 1.2M total) that happen to have their single biggest concentration in East rather than the claimed region. Not wrong so much as under-specified by a single-region tag — these names are legitimately common in several regions at once.
+- **Singh** (both Hindu_North and Sikh, in Ojas's own list) — not an error, a real and well-documented ambiguity (used by Hindu Rajputs and other communities, not just Sikhs). Already flagged in conversation when first noticed; left as-is in both places since the list creator put it there deliberately in both, correctly reflecting real-world overlap.

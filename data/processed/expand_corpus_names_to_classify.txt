@@ -171,6 +171,7 @@ farhan
 farida
 farooqui
 fernandez
+flory
 fonseca
 furtado
 gagandeep
@@ -261,6 +262,7 @@ joby
 joel
 johal
 junaid
+justin
 kabui
 kahlon
 kalirai
@@ -451,7 +453,6 @@ rizwan
 rodrigues
 rohit
 rongmei
-rosario
 roseline
 roshni
 rowther
@@ -490,6 +491,7 @@ sema
 sequeira
 shabana
 shadab
+shahida
 shahnaz
 shaikh
 shaista
