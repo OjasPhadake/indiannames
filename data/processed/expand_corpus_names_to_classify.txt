@@ -49,7 +49,6 @@ asif
 asma
 athaide
 attarwala
-aujla
 aulakh
 ayesha
 azad
@@ -253,7 +252,6 @@ jaspreet
 jasveer
 jaswant
 javed
-jawanda
 jennifer
 jerome
 jijo
@@ -284,7 +282,6 @@ kerketta
 kevin
 khaira
 khalsa
-khangura
 khanna
 kharshiing
 khatoon
@@ -295,7 +292,6 @@ khongwir
 kindo
 kirandeep
 kirti
-klair
 komal
 konyak
 kooner
@@ -414,7 +410,6 @@ pothen
 prabhjot
 pranav
 punnoose
-purewal
 purty
 qadri
 qureshi
@@ -476,7 +471,6 @@ samina
 samra
 sandhu
 sangha
-sanghera
 sanya
 sarabajeeth
 sarai

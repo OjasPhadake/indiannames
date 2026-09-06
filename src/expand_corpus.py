@@ -214,23 +214,46 @@ def load_combined_clf() -> pd.DataFrame:
     return combined.drop_duplicates(subset="name", keep="first")
 
 
-def build_canonical_map(names_and_counts: pd.Series) -> dict:
+def build_canonical_map(names_and_counts: pd.Series, protect: set[str] | None = None) -> dict:
     """names_and_counts: total count per raw spelling (already summed across
     whatever grouping matters -- e.g. nationally, or within one gender
     bucket). Returns {raw_spelling: canonical_spelling}, canonical being
     whichever spelling has the highest count within its transliteration
     stem group (Phase 2's same two deterministic rules -- see
     transliteration_stem's docstring for why this isn't generic
-    edit-distance clustering)."""
+    edit-distance clustering).
+
+    `protect`: raw spellings that must always map to themselves, never to
+    a different stem-mate. Without this, a real hand-list candidate whose
+    stem happens to collide with a bigger, unrelated real word (found by
+    inspection: mann->manna, walia->wali, banerjee->banerji, masih->masiha,
+    baig->baiga, vyas->vyasa, uppal->uppala, khaira->khair, and 8 more --
+    18 in total across every religion, all real curated candidates,
+    several with tens of thousands of real people behind them) gets
+    silently renamed away in the frequency table. Every later step that
+    matches candidates by their original hand-list spelling then finds no
+    row left under that spelling and the name vanishes from the corpus
+    with no error or warning -- caught by explicitly diffing candidate
+    names against final output, not by any test. `protect` fixes this by
+    only ever folding an *unprotected* spelling into the group's biggest
+    member (protected or not); a protected name always keeps its own
+    spelling and its own real count. See DECISIONS.md #11."""
+    protect = protect or set()
     df = names_and_counts.reset_index()
     df.columns = ["name", "n"]
     df["stem"] = df["name"].map(transliteration_stem)
     df = df.sort_values("n", ascending=False)
-    canonical_by_stem = df.groupby("stem")["name"].first()
-    return dict(zip(df["name"], df["stem"].map(canonical_by_stem)))
+
+    mapping: dict[str, str] = {}
+    for _, group in df.groupby("stem", sort=False):
+        names_in_group = group["name"].tolist()  # already sorted by n desc
+        top = names_in_group[0]
+        for n in names_in_group:
+            mapping[n] = n if n in protect else top
+    return mapping
 
 
-def load_freq_tables() -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_freq_tables(protected_surnames: set[str] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     fn = pd.read_csv(os.path.join(PROCESSED_DIR, "freq_firstnames.csv"))
     fn["first_name"] = fn["first_name"].map(normalize_surname)
     fn = fn.dropna(subset=["first_name"])
@@ -249,8 +272,11 @@ def load_freq_tables() -> tuple[pd.DataFrame, pd.DataFrame]:
     # region and never merge back together. Surnames aren't gendered, so
     # this is safe to do directly (see the first-name path below for why
     # that one needs a gender-aware version of the same idea).
+    # `protected_surnames` (every hand-list candidate, across every
+    # religion) keeps its own spelling through this merge -- see
+    # build_canonical_map's docstring for why that's needed.
     national_totals = sn.groupby("surname")["n_total"].sum()
-    canonical_map = build_canonical_map(national_totals)
+    canonical_map = build_canonical_map(national_totals, protect=protected_surnames)
     sn["surname"] = sn["surname"].map(canonical_map)
     sn = sn.groupby(["region", "surname"])["n_total"].sum().reset_index()
 
@@ -293,7 +319,7 @@ def select_firstnames(religion: str, gender: str, user_fn: dict, our_fn: dict, f
     # fold a woman's name's count into a man's or vice versa. Restricting
     # the canonical map to rows already resolved to `gender` avoids that.
     same_gender = pooled[pooled["gender"] == gender]
-    canonical_map = build_canonical_map(same_gender.set_index("first_name")["n_total"])
+    canonical_map = build_canonical_map(same_gender.set_index("first_name")["n_total"], protect=hand_names)
     pooled = pooled.copy()
     pooled.loc[pooled["gender"] == gender, "first_name"] = pooled.loc[pooled["gender"] == gender, "first_name"].map(canonical_map)
     pooled = pooled.groupby(["first_name", "gender"], dropna=False).agg(
@@ -338,7 +364,12 @@ def select_surnames_region(religion: str, region: str, hand_names: set, sn_freq:
 def cmd_finalize() -> None:
     user_fn, user_sn = load_user_lists()
     our_fn, our_sn = load_our_marker_lists()
-    fn_freq, sn_freq = load_freq_tables()
+
+    protected_surnames = set()
+    for d in (user_sn, our_sn):
+        for names in d.values():
+            protected_surnames |= names
+    fn_freq, sn_freq = load_freq_tables(protected_surnames=protected_surnames)
     clf = load_combined_clf()
 
     parts = []

@@ -223,6 +223,14 @@ REGION_SURNAME_MAP = {
         "Bhuyan", "Rahman", "Ali", "Gani", "Islam",
         "Deka", "Nasir", "Karim", "Habib",
     ],
+    # Klair, Khangura, Jawanda, Aujla, Purewal, Sanghera removed 2026-09-06
+    # -- all real (30-85 people nationally) but too thin for Ojas's "I'd
+    # want more common names" ask. Their removal, plus a pipeline bug fix
+    # (src/expand_corpus.py was silently dropping Mann, Walia, Uppal,
+    # Khaira, Gosal, Heer, Mahil, and Natt entirely -- see DECISIONS.md
+    # #11), raised the pooled Sikh surname floor from n=30 to n=106
+    # (Nagra), all backed by hundreds to nearly 12,000 real people.
+    # See DECISIONS.md #11.
     "Sikh": [
         "Singh", "Kaur", "Gill", "Dhillon", "Sandhu", "Brar",
         "Sidhu", "Grewal", "Bedi", "Bajwa", "Cheema",
@@ -230,14 +238,14 @@ REGION_SURNAME_MAP = {
         "Aulakh", "Sodhi", "Walia", "Khalsa",
         "Bhatti", "Toor", "Deol", "Dhaliwal", "Bal",
         "Dhanoa", "Gosal", "Hundal", "Johal", "Kang",
-        "Khaira", "Klair", "Mahil", "Nijjar", "Rai",
+        "Khaira", "Mahil", "Nijjar", "Rai",
         "Rehal", "Sahota", "Samra", "Sangha", "Sarai",
         "Sohal", "Uppal", "Virk", "Waraich", "Bains",
         "Bhogal", "Chana", "Dosanjh", "Gakhal", "Hayer",
-        "Heer", "Jawanda", "Kahlon", "Kalirai", "Khangura",
+        "Heer", "Kahlon", "Kalirai",
         "Kooner", "Lidder", "Nagra", "Natt", "Pandher",
-        "Purewal", "Sahni", "Sanghera", "Shergill", "Sudan",
-        "Takhar", "Thandi", "Wahla", "Aujla", "Bhullar",
+        "Sahni", "Shergill", "Sudan",
+        "Takhar", "Thandi", "Wahla", "Bhullar",
         "Chattha", "Dhadwal", "Garcha", "Ghuman", "Bassi",
     ],
     "Christian_South": [
