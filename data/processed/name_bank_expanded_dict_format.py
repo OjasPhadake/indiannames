@@ -129,8 +129,8 @@ REGION_SURNAME_MAP = {
         "Ali", "Begam", "Ansari", "Alam", "Chaudhary",
         "Malik", "Khan", "Rahman", "Molla", "Choudhury",
         "Pramanik", "Sardar", "Islam", "Uddin", "Ahmad",
-        "Husain", "Bhuiyan", "Hasan", "Ahmed", "Talukdar",
-        "Sarkar", "Karim", "Ismail", "Begum", "Azad",
+        "Husain", "Bhuiyan", "Momin", "Hasan", "Ahmed",
+        "Talukdar", "Sarkar", "Karim", "Ismail", "Begum",
     ],
     "Muslim_South": [  # n=25
         "Begam", "Khan", "Rahman", "Ibrahim", "Basheer",
@@ -142,21 +142,21 @@ REGION_SURNAME_MAP = {
     "Muslim_West": [  # n=25
         "Khan", "Pathan", "Ansari", "Ahmad", "Begam",
         "Ismail", "Ibrahim", "Yusuf", "Usman", "Kazi",
-        "Hasan", "Malik", "Alam", "Husain", "Rehman",
-        "Rahman", "Ghani", "Mirza", "Azad", "Saifi",
-        "Jafri", "Vora", "Pasha", "Khoja", "Memon",
+        "Hasan", "Nazir", "Malik", "Alam", "Husain",
+        "Rehman", "Rahman", "Ghani", "Mirza", "Azad",
+        "Saifi", "Jafri", "Vora", "Pasha", "Khoja",
     ],
-    "Christian_North": [  # n=14
+    "Christian_North": [  # n=12
         "Lal", "Chand", "Prakash", "Chandra", "Sagar",
-        "Anand", "Bhatia", "Barkat", "Isaac", "Nazir",
-        "Khokhar", "Elias", "Yohanan", "Yaqub",
+        "Anand", "Bhatia", "Barkat", "Isaac", "Khokhar",
+        "Elias", "Yohanan",
     ],
     "Christian_East": [  # n=25
-        "Marak", "Sangma", "Bara", "Momin", "Kujur",
-        "Minj", "Toppo", "Ekka", "Lyngdoh", "Lakra",
-        "Tigga", "Konyak", "Barla", "Nongrum", "Horo",
-        "Marbaniang", "Kerketta", "Nongsiej", "Suchiang", "Bakhla",
-        "Dungdung", "Lotha", "Soreng", "Kindo", "Sema",
+        "Marak", "Sangma", "Bara", "Kujur", "Minj",
+        "Toppo", "Ekka", "Lyngdoh", "Lakra", "Tigga",
+        "Konyak", "Barla", "Nongrum", "Horo", "Marbaniang",
+        "Kerketta", "Nongsiej", "Suchiang", "Bakhla", "Dungdung",
+        "Lotha", "Soreng", "Kindo", "Sema", "Kandulna",
     ],
     "Christian_South": [  # n=25
         "Mani", "Joseph", "Thomas", "Varghese", "George",

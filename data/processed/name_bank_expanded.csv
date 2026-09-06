@@ -391,6 +391,7 @@ uddin,last,,Muslim,East,276250.0,ojas_list,Muslim,0.9999940863791156,False
 ahmad,last,,Muslim,East,267994.0,marker_list,Muslim,0.996208946383144,False
 husain,last,,Muslim,East,259372.0,marker_list,Muslim,0.8910794196151165,False
 bhuiyan,last,,Muslim,East,120162.0,ojas_list,Hindu,0.9834555696919854,False
+momin,last,,Muslim,East,98526.0,ojas_list,Muslim,0.956921763769069,False
 hasan,last,,Muslim,East,98400.0,marker_list,Christian,0.9229468642106342,False
 ahmed,last,,Muslim,East,85119.0,ojas_list;marker_list,Muslim,0.6147604924542135,False
 talukdar,last,,Muslim,East,45872.0,ojas_list,Hindu,0.919206047289292,False
@@ -398,7 +399,6 @@ sarkar,last,,Muslim,East,38885.0,ojas_list,Hindu,0.905588892339055,False
 karim,last,,Muslim,East,37262.0,ojas_list,Muslim,0.5712662860861406,False
 ismail,last,,Muslim,East,28641.0,ojas_list;marker_list,Muslim,0.8196903602795812,False
 begum,last,,Muslim,East,28499.0,marker_list,Muslim,0.932043379136302,False
-azad,last,,Muslim,East,26313.0,marker_list,Muslim,0.7262770521529529,False
 begam,last,,Muslim,South,311629.0,marker_list,Muslim,0.99720245267193,False
 khan,last,,Muslim,South,99811.0,ojas_list;marker_list,Muslim,0.9295131840395018,False
 rahman,last,,Muslim,South,87379.0,ojas_list;marker_list,Muslim,0.7518130973697453,False
@@ -435,6 +435,7 @@ yusuf,last,,Muslim,West,51989.0,marker_list,Muslim,0.995511430745674,False
 usman,last,,Muslim,West,38030.0,marker_list,Muslim,0.8002024394768895,False
 kazi,last,,Muslim,West,37605.0,ojas_list,Muslim,0.9896806432259672,False
 hasan,last,,Muslim,West,34801.0,marker_list,Christian,0.9229468642106342,False
+nazir,last,,Muslim,West,22506.0,ojas_list,Muslim,0.9508521133969964,False
 malik,last,,Muslim,West,19984.0,marker_list,Muslim,0.837390651519781,False
 alam,last,,Muslim,West,17436.0,marker_list,Hindu,0.9731243400558977,False
 husain,last,,Muslim,West,12796.0,marker_list,Muslim,0.8910794196151165,False
@@ -448,7 +449,6 @@ jafri,last,,Muslim,West,1242.0,ojas_list,Muslim,0.984922324698012,False
 vora,last,,Muslim,West,1198.0,ojas_list,Hindu,0.7919067585104775,False
 pasha,last,,Muslim,West,960.0,ojas_list,Hindu,0.7046711157547592,False
 khoja,last,,Muslim,West,921.0,ojas_list,Muslim,0.5324018585493617,False
-memon,last,,Muslim,West,904.0,ojas_list,Hindu,0.5767022600654864,False
 singh,last,,Hindu,North,26319715.0,ojas_list,Sikh,0.9999988829582817,False
 sharma,last,,Hindu,North,2018691.0,ojas_list;marker_list,Hindu,0.9998823053984738,False
 yadav,last,,Hindu,North,1707362.0,ojas_list,Hindu,0.9999991788664648,False
@@ -558,15 +558,12 @@ anand,last,,Christian,North,91070.0,ojas_list,Hindu,0.9995694032925746,False
 bhatia,last,,Christian,North,59415.0,ojas_list,Hindu,0.9891174490361272,False
 barkat,last,,Christian,North,9749.0,ojas_list,Hindu,0.7846904046161299,False
 isaac,last,,Christian,North,8344.0,ojas_list,Christian,0.831471717560254,False
-nazir,last,,Christian,North,8045.0,ojas_list,Muslim,0.9508521133969964,False
 khokhar,last,,Christian,North,2841.0,ojas_list,Hindu,0.9042052611368822,False
 elias,last,,Christian,North,421.0,ojas_list,Christian,0.8265051044373134,False
 yohanan,last,,Christian,North,43.0,ojas_list,Christian,0.7902484909815225,False
-yaqub,last,,Christian,North,41.0,ojas_list,Muslim,0.954550042395248,False
 marak,last,,Christian,East,256416.0,ojas_list,Hindu,0.9142295127469212,False
 sangma,last,,Christian,East,253941.0,ojas_list,Hindu,0.9844758966614447,False
 bara,last,,Christian,East,118156.0,ojas_list,Hindu,0.9718694151589352,False
-momin,last,,Christian,East,98526.0,ojas_list,Muslim,0.956921763769069,False
 kujur,last,,Christian,East,88272.0,ojas_list,Hindu,0.825276782189482,False
 minj,last,,Christian,East,68828.0,ojas_list,Muslim,0.6973702087908525,False
 toppo,last,,Christian,East,58287.0,ojas_list,Hindu,0.7880485553739552,False
@@ -588,6 +585,7 @@ lotha,last,,Christian,East,5417.0,ojas_list,Hindu,0.538284752807084,False
 soreng,last,,Christian,East,4855.0,ojas_list,Christian,0.7942805293795403,False
 kindo,last,,Christian,East,4374.0,ojas_list,Hindu,0.9506928144885928,False
 sema,last,,Christian,East,3475.0,ojas_list,Christian,0.5385912096918766,False
+kandulna,last,,Christian,East,2957.0,ojas_list,Hindu,0.9613594431489372,False
 mani,last,,Christian,South,429272.0,ojas_list,Hindu,0.7784664696761198,False
 joseph,last,,Christian,South,351185.0,ojas_list,Christian,0.999999973582924,False
 thomas,last,,Christian,South,289665.0,ojas_list;marker_list,Christian,0.9999996556702168,False

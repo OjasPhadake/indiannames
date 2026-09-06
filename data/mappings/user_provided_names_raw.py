@@ -66,11 +66,17 @@ FIRST_NAME_BANK = {
     # female in real data), and removed Manpreet from Male (it was
     # already correctly listed under Female; real data is 70% female).
     # See DECISIONS.md #7.
+    # Mandeep removed 2026-09-06 -- real data is 74% male (n_male=6213 vs
+    # n_female=2189), a clear one-gender name, not the genuine near-50/50
+    # unisex pattern Gurpreet/Jaspreet/Prabhjot actually show (all inside
+    # the project's own 0.4-0.6 ambiguous band, left as-is on both lists
+    # deliberately). Already correctly present on Sikh_Male. See
+    # DECISIONS.md #10.
     "Sikh_Female": [
         "Harpreet", "Simran", "Manpreet", "Gurpreet", "Jaspreet",
         "Sukhpreet", "Kirandeep", "Amandeep", "Jasleen", "Harsimran",
         "Satinder", "Navjot", "Ramandeep", "Harleen", "Gurleen",
-        "Mandeep", "Prabhjot", "Amrit", "Baljeet", "Kanwal",
+        "Prabhjot", "Amrit", "Baljeet", "Kanwal",
         "Charanjeet", "Supreet", "Ekjot", "Japneet", "Amanpreet",
         "Harnoor", "Simerjeet", "Manjot", "Karamjit", "Sukhjeet",
         "Rupinder", "Amanjot", "Jasneet", "Baljinder", "Simrat",
@@ -139,10 +145,14 @@ REGION_SURNAME_MAP = {
         "Vyas", "Trivedi", "Parikh", "Modi", "Bhatt",
         "Shetty",
     ],
+    # Paul removed 2026-09-06 -- also independently on Christian_South.
+    # Real regional data is 60% South / 19% East, matching Kerala
+    # Christian usage far more than the Bengali Hindu (Poddar-derived)
+    # reading; Ojas's call was to keep it Christian. See DECISIONS.md #10.
     "Hindu_East": [
         "Banerjee", "Chatterjee", "Das", "Sen", "Roy",
         "Bose", "Mukherjee", "Bhattacharya", "Saha", "Ghosh",
-        "Pal", "Mitra", "Paul", "Chakraborty", "Biswas",
+        "Pal", "Mitra", "Chakraborty", "Biswas",
         "Sikder",  # moved here from Muslim_Northeast -- Sikdar/Sikder is a real Hindu Bengali surname too, per Ojas's call. Note: real regional data actually shows this name 78% concentrated in South, not East/Bengal -- likely a spelling collision with an unrelated Southern name, kept as Hindu_East on cultural-knowledge grounds despite that. See DECISIONS.md #7.
     ],
     "Hindu_Northeast": [
@@ -182,17 +192,31 @@ REGION_SURNAME_MAP = {
     # project's own Hindu marker list (same real West count on both
     # sides). Patel is overwhelmingly Hindu/Jain in reality; Ojas's call
     # was to keep it Hindu. See DECISIONS.md #9.
+    # Nazir added 2026-09-06 -- moved here from Christian_North (real
+    # region is actually West-dominant: 21,749 West vs 7,714 North), see
+    # note at Christian_North for why the religion also moved.
+    # See DECISIONS.md #10.
     "Muslim_West": [
         "Khoja", "Memon", "Vora", "Ghadiyali", "Attarwala",
         "Bagasrawala", "Kapadia", "Surtee", "Amreliwala", "Dholkawala",
         "Contractor", "Petiwala", "Rajkotwala", "Kazi",
-        "Shaikh", "Jafri", "Pasha", "Ansari",
+        "Shaikh", "Jafri", "Pasha", "Ansari", "Nazir",
     ],
+    # Yaqub added 2026-09-06 -- moved here from Christian_North, see note
+    # there. Momin added here too -- also independently on
+    # Christian_Northeast (a real Garo tribal Christian clan surname
+    # there, alongside Sangma/Marak). Real national count (98,526,
+    # East+West-heavy) is far too large to be explained by the small
+    # Garo population, and the classifier independently agrees Muslim at
+    # 95.7%; Ojas's call was to keep it Muslim. Biswas removed --
+    # independently on Hindu_East too; real data (51% East) and the
+    # stronger cultural association favor the Hindu Bengali reading;
+    # Ojas's call was to keep it Hindu. See DECISIONS.md #10.
     "Muslim_East": [
         "Mondal", "Molla", "Sheikh", "Pramanik", "Munshi",
         "Sardar", "Talukdar", "Miah", "Mazumder", "Bhuiyan",
-        "Sarkar", "Fakir", "Biswas", "Halder", "Ahmed",
-        "Ansari", "Chaudhary",
+        "Sarkar", "Fakir", "Halder", "Ahmed",
+        "Ansari", "Chaudhary", "Momin", "Yaqub",
     ],
     "Muslim_Northeast": [
         "Barbhuiya", "Laskar", "Borbhuiya", "Choudhury", "Uddin",
@@ -250,9 +274,20 @@ REGION_SURNAME_MAP = {
     # list). Both are well-known Punjabi Jat clan names with no real
     # Christian association found; Ojas's call was to keep them Sikh.
     # See DECISIONS.md #9.
+    # Yaqub and Nazir removed 2026-09-06 -- both read as Muslim, not
+    # Christian, on closer check: Yaqub is the Arabic/Quranic form of
+    # Jacob (Christians here use "Jacob" itself, already covered by this
+    # project's marker lists); Nazir is an Arabic honorific ("observer/
+    # overseer") with no standard Biblical-name usage. Real region data
+    # for both is Muslim-community-shaped (Yaqub 70% East, Nazir 57%
+    # West -- neither North-heavy, despite being filed under
+    # Christian_North), and the classifier independently agrees at >95%
+    # confidence on both. No established Christian usage found for
+    # either. Moved to Muslim_East (Yaqub) / Muslim_West (Nazir) per
+    # their real regional concentration. See DECISIONS.md #10.
     "Christian_North": [
         "Masih", "Lal", "Prakash", "Chand",
-        "Sagar", "Yaqub", "Yohanan", "Barkat", "Nazir",
+        "Sagar", "Yohanan", "Barkat",
         "Khokhar", "Anand", "Bhatia", "Chandra",
         "Elias", "Isaac",
     ],
@@ -262,9 +297,13 @@ REGION_SURNAME_MAP = {
         "Soreng", "Beck", "Dungdung", "Bakhla", "Horo",
         "Kindo", "Kandulna", "Purty", "Tigga", "Baxla",
     ],
+    # Momin removed 2026-09-06 -- also independently on Muslim_East. See
+    # note there for why Ojas's call was to keep it Muslim; Sangma and
+    # Marak remain here as unambiguous Garo Christian markers.
+    # See DECISIONS.md #10.
     "Christian_Northeast": [
         "Ao", "Sema", "Angami", "Lotha", "Konyak",
-        "Chang", "Zeliang", "Sangma", "Marak", "Momin",
+        "Chang", "Zeliang", "Sangma", "Marak",
         "Lyngdoh", "Nongrum", "Marbaniang", "Kharshiing", "Pariat",
         "Khongwir", "Suchiang", "Nongsiej", "Rongmei", "Kabui",
     ],

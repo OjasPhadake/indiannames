@@ -227,3 +227,55 @@ Re-ran `python src/expand_corpus.py prepare` then `finalize`, then re-ran the sa
 No other cell changed, since Patel/Bhatti/Gill/Kutty's *other* side (Hindu_West, Sikh, Christian_South) already had a same or better real-frequency candidate filling that slot independently.
 
 **Conclusion on "optimality":** there's no provable global optimum here — no ground truth exists and the objectives (real frequency, religious distinctiveness, hand-list-transparency, corpus size) trade off against each other. But every checkable form of error has now been run to exhaustion: gender-purity mismatches and region mismatches (§7/§8), floor-sensitivity (this round), spelling artifacts (this round), and cross-religion conflicts (this round). Nothing further surfaced. Any future correction would need either new labeled data (for the Sikh classifier gap, per §6) or a new category of check not yet tried.
+
+## 10. Fourth QA round: remaining duplicates + a "does this actually make sense" classifier cross-check (2026-09-06)
+
+Ojas asked three things: (a) are there any remaining repeated names, within his own list or between his and this project's, that §9 missed; (b) do all final names make sense; (c) are they all backed by solid real numbers (he suggested ~10,000 as a rough bar). Three checks were run.
+
+### Check 1: remaining duplicates
+
+Re-ran the same-key and cross-key duplicate scans from §9, this time also checking *within* `FIRST_NAME_BANK`/`REGION_SURNAME_MAP` for a name appearing under two different gender or region keys of the same religion (§9 only checked cross-*religion* duplicates). Found:
+
+- **Mandeep** on both `Sikh_Female` and `Sikh_Male`. Real data: 74% male (n_male=6,213 vs n_female=2,189) — a clear one-gender name, not a genuine unisex case. **Removed from `Sikh_Female`**, kept on Male (already correct there, and the final ranked corpus already only had it as Male — this fixes the source list, doesn't change the deliverable).
+- **Gurpreet, Jaspreet, Prabhjot** also appear on both Sikh gender lists — checked and left alone. Real data puts all three inside the project's own 0.4–0.6 ambiguous band (45.7%, 56.1%, 53.8% female respectively), the same genuinely-unisex pattern already documented for Manpreet in §7. Correctly excluded from the ranked output either way; kept on both source lists as an accurate reflection of real ambiguity, not an error.
+- Re-ran §9's cross-religion candidate check (merging Ojas's list + this project's marker lists) and found **two new conflicts §9 missed**: **Paul** (Hindu_East vs. Christian_South) and **Biswas** (Hindu_East vs. Muslim_East) — both pre-existing within Ojas's own original list, not introduced by any merge.
+- The already-known intentional multi-region duplicates (Bhatt, Shetty, Ahmed, Chaudhary, Ansari — same religion, multiple regions, per §8) are unaffected and correctly left alone. Singh remains the one accepted cross-religion exception (§7).
+
+### Check 2: "does this make sense" — classifier cross-check against a real cultural-plausibility read
+
+Beyond §7's gender/region checks, ran a broader pass: every name where the classifier's independent top pick **disagrees with the assigned religion at ≥85% confidence, excluding "Hindu"** (Hindu is the classifier's known majority-class default bias, documented in §4/#4 — not trustworthy as a signal on its own). 28 names matched. Most were the classifier being wrong in already-understood ways (Bose/Sen called "Christian" — real Bengali Hindu surnames, a Bengali-surname blind spot; Moosa/Hasan/Ravuthar called "Sikh" — the same mohammad→Sikh bias from §4; Mehta called "Jain" — real and true, but Jain isn't one of this study's four target religions, so out of scope; Shah called "Muslim" — a genuine real-world dual-usage case like Singh, but not currently duplicated in the corpus so no action needed). Three, however, held up as real errors:
+
+| Name | Was | Real region data | Classifier | Verdict |
+|---|---|---|---|---|
+| Momin | Christian_Northeast (98,526 real people, East+West-heavy) | East 57%, West 37% — not Northeast/Garo-population-shaped | Muslim, 95.7% | Genuine two-community spelling collision (see below), not a simple error |
+| Yaqub | Christian_North (real n=243, tiny) | East 70%, North only 17% | Muslim, 95.5% | Confirmed error |
+| Nazir | Christian_North (real n=38,423) | West 57%, North only 20% | Muslim, 95.1% | Confirmed error |
+
+**Yaqub and Nazir**: both read as Muslim, not Christian, on inspection — Yaqub is the Arabic/Quranic form of Jacob (Indian Christians use "Jacob" itself, already covered by this project's marker lists); Nazir is an Arabic honorific ("observer/overseer") with no standard Biblical-name usage. Neither has an established Christian community association, both were mis-regioned even under their old label (filed North, but real data says East/West), and the classifier agrees at >95% independently. **Applied directly**: removed from `Christian_North`, added to `Muslim_East` (Yaqub) / `Muslim_West` (Nazir) matching their real regional concentration.
+
+**Momin** turned out more interesting on inspection: it sits in `Christian_Northeast` alongside Sangma and Marak — genuine Garo (Meghalaya) Christian tribal clan surnames — so the original placement wasn't arbitrary, it reflects a real Garo Christian surname. But the *national* real count (98,526, concentrated East+West) is far larger than Meghalaya's Garo population could plausibly produce, and doesn't fit a Northeast-only distribution — West India in particular has no Garo population to speak of. The much more numerous explanation is the well-documented Muslim weaver-caste name "Momin"/"Momin Ansari," concentrated in Bengal with westward migration (matches the East+West pattern). **This is a genuine two-community spelling collision, not a data error on either side** — reported to Ojas rather than resolved unilaterally.
+
+### Decisions
+
+| Name | Recommended | Ojas's decision | Applied |
+|---|---|---|---|
+| Momin | Remove from Christian, keep Muslim | **Agreed** | Removed from `Christian_Northeast` (Sangma/Marak remain as the unambiguous Garo Christian markers), kept on `Muslim_East` |
+| Paul | Remove from Hindu, keep Christian | **Agreed** | Removed from `Hindu_East`, kept on `Christian_South` |
+| Biswas | Remove from Muslim, keep Hindu | **Agreed** | Removed from `Muslim_East`, kept on `Hindu_East` |
+
+Re-ran `expand_corpus.py prepare`+`finalize` and re-checked: **zero cross-religion conflicts remain except the accepted Singh exception.** Direct consequences: Christian_North surnames dropped 12/25 (from 14, losing Yaqub and Nazir — both were real but too thin/mis-regioned to have mattered much regardless); every other cell unaffected, since the removed side of each conflict already had an equal-or-better real candidate filling its slot.
+
+### Check 3: is everything backed by "solid numbers" (~10,000 real people)?
+
+Checked the full corpus (696 rows) against a 10,000-real-person bar:
+
+| Religion | Rows | n < 10,000 | n < 1,000 | n < 100 |
+|---|---|---|---|---|
+| Hindu | 195 | 46 | 9 | 0 |
+| Muslim | 195 | 88 | 29 | 0 |
+| Christian | 183 | 103 | 27 | 1 |
+| Sikh | 123 | 95 | 49 | 6 |
+
+**A flat 10,000 floor doesn't make sense for this corpus, and applying one would break the study, not improve it.** India's 2011 census religion shares are roughly Hindu 79.8%, Muslim 14.2%, Christian 2.3%, Sikh 1.7% — a Sikh or Christian name that is genuinely *that community's most common* will still usually have a far smaller absolute national count than an equivalently-ranked Hindu name, purely because the underlying population is ~35-45x smaller. A hard 10,000 cutoff would eliminate the large majority of Sikh entries (77% of Sikh rows) and roughly half of Muslim and Christian entries, while barely touching Hindu — which would make the corpus systematically under-represent minority religions rather than fairly represent them. This project has already been built around exactly this concern (region-specific and religion-specific ranking instead of one global cutoff, `FREQ_FLOOR=30` as a noise floor rather than a popularity floor) — see the module docstring in `src/expand_corpus.py`.
+
+The 7 entries below n=100 were checked individually and are all real: `klair` (30), `yohanan` (43), `khangura` (56), `jawanda` (72), `aujla` (75), `purewal` (81), `sanghera` (85) — six are well-documented real Punjabi Jat/Sikh clan surnames (the same reason Sikh surnames stay pooled nationally rather than split by region, per the module docstring — no single Sikh surname dominates the way Sharma/Singh does for Hindus, so the "top 100" pool necessarily reaches into thinner names), and Yohanan is a real, if rare, Hebrew-derived Indian Christian name (the Hebrew form of John). All seven clear the project's own `FREQ_FLOOR=30` noise floor and have no gender or region mismatch. No further action taken — this is what an honest, population-proportional corpus looks like for minority religions in India, not a data quality problem.
