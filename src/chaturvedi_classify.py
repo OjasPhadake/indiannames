@@ -35,8 +35,9 @@ concat_False (single name, no parent-name concatenation) matches our
 single-name-at-a-time candidates.
 
 Run:
-    source .venv-chaturvedi/bin/activate
-    python src/chaturvedi_classify.py
+    source .venv-chaturvedi-lr/bin/activate
+    python src/chaturvedi_classify.py                       # scores clean_names.csv (default)
+    python src/chaturvedi_classify.py names.txt out.csv      # scores an arbitrary newline-separated name list
 """
 from __future__ import annotations
 
@@ -70,10 +71,17 @@ def main() -> None:
     clf = pickle.load(open(os.path.join(MODEL_DIR, "model_multiclass_lr_concat_False.sav"), "rb"))
     _, idx2label = pickle.load(open(os.path.join(MODEL_DIR, "non_neural_label_encoding_multiclass.pkl"), "rb"))
 
-    clean_path = os.path.join(PROCESSED_DIR, "clean_names.csv")
-    df = pd.read_csv(clean_path)
-    names = df["name"].astype(str).unique()
-    print(f"Classifying {len(names)} unique candidate names from clean_names.csv...")
+    if len(sys.argv) >= 3:
+        names_in, out_path = sys.argv[1], sys.argv[2]
+        with open(names_in) as f:
+            names = sorted({line.strip() for line in f if line.strip()})
+        print(f"Classifying {len(names)} unique names from {names_in}...")
+    else:
+        clean_path = os.path.join(PROCESSED_DIR, "clean_names.csv")
+        df = pd.read_csv(clean_path)
+        names = df["name"].astype(str).unique()
+        out_path = os.path.join(PROCESSED_DIR, "chaturvedi_predictions.csv")
+        print(f"Classifying {len(names)} unique candidate names from clean_names.csv...")
 
     cleaned = [clean_name(n) for n in names]
     X = vectorizer.transform(cleaned)
@@ -86,7 +94,6 @@ def main() -> None:
         "clf_predicted_religion": [idx2label[i] for i in pred_idx],
         "clf_max_prob": max_prob,
     })
-    out_path = os.path.join(PROCESSED_DIR, "chaturvedi_predictions.csv")
     out.to_csv(out_path, index=False)
     print(f"Wrote {out_path} ({len(out)} rows)")
     print(out["clf_predicted_religion"].value_counts().to_string())

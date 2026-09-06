@@ -82,3 +82,8 @@ Kept here so we don't re-spend time re-evaluating these later.
 ## Not cited: hand-curated content
 
 The marker-surname lists in `data/mappings/` (`muslim_surname_markers.csv`, `hindu_upper_caste_surnames.csv`, `christian_surname_markers.csv`, `sikh_surname_candidates.csv`) were **typed by hand from general knowledge of Indian surname–religion/caste associations, not drawn from any paper or dataset**. They follow the *method* of Thorat & Attewell / Banerjee et al. (hand-picked stereotype surnames) but are not their specific lists, which aren't published in a form we could reuse. This is flagged prominently, not buried, because it's the least rigorous part of the pipeline right now — see `DECISIONS.md` #4 for the plan to replace/cross-check it once pranaam is reachable again.
+
+### Ojas's `FIRST_NAME_BANK` / `REGION_SURNAME_MAP` (2026-09-06)
+**What it is:** a hand-typed reference list of ~40-90 names per religion/gender/region cell, provided by Ojas for his own downstream tool, kept verbatim at `data/mappings/user_provided_names_raw.py`. Same nature as this project's own marker lists above — real names, but hand-typed from general knowledge, not derived from data.
+**What we took:** used as one of three merge inputs (alongside our marker lists and the Chaturvedi classifier) for `src/expand_corpus.py`'s expanded ~100/religion corpus (`data/processed/name_bank_expanded.csv`) — see `DECISIONS.md` #5 for the full merge methodology, including why the classifier ended up not being used as a candidate source despite being tried. Names from this list only make it into the final output if they also clear a real electoral-roll frequency floor; nothing is included on the list's say-so alone.
+**Where used:** `src/expand_corpus.py`; `DECISIONS.md` #5.
