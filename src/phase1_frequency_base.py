@@ -61,21 +61,32 @@ def load_region_mapping() -> pd.DataFrame:
 
 
 def build_firstname_table(mapping: pd.DataFrame) -> pd.DataFrame:
+    import shutil
+
     from naampy.in_rolls_fn import InRollsFnData
 
     data_path = InRollsFnData.load_naampy_data(NAAMPY_DATASET)
-    df = pd.read_csv(
-        data_path,
-        usecols=["state", "birth_year", "first_name", "n_female", "n_male", "n_third_gender"],
-    )
     os.makedirs(RAW_DIR, exist_ok=True)
-    df.to_csv(os.path.join(RAW_DIR, f"naampy_{NAAMPY_DATASET}_raw.csv.gz"), index=False, compression="gzip")
+    raw_copy = os.path.join(RAW_DIR, f"naampy_{NAAMPY_DATASET}_raw.csv.gz")
+    if not os.path.exists(raw_copy):
+        shutil.copy(data_path, raw_copy)  # plain file copy, not a pandas round-trip --
+        # naampy_v2.csv.gz is 23.8M rows; loading it whole just to immediately
+        # re-save it (as an earlier version of this function did) held two
+        # copies in memory at once and OOM'd on an 8GB box, same failure mode
+        # as the surname melt in build_surname_region_table above.
 
-    agg = (
-        df.groupby(["state", "first_name"])[["n_female", "n_male", "n_third_gender"]]
-        .sum()
-        .reset_index()
-    )
+    agg = None
+    for chunk in pd.read_csv(
+        data_path,
+        usecols=["state", "first_name", "n_female", "n_male", "n_third_gender"],
+        chunksize=2_000_000,
+    ):
+        chunk_agg = chunk.groupby(["state", "first_name"], observed=True)[
+            ["n_female", "n_male", "n_third_gender"]
+        ].sum()
+        agg = chunk_agg if agg is None else agg.add(chunk_agg, fill_value=0)
+    agg = agg.reset_index()
+
     n_total = agg["n_female"] + agg["n_male"] + agg["n_third_gender"]
     agg["n_total"] = n_total
     agg["prop_female"] = agg["n_female"] / n_total

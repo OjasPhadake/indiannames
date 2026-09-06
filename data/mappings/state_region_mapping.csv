@@ -38,3 +38,13 @@ Tamil Nadu,South,
 Puducherry,South,
 Andaman and Nicobar Islands,South,Grouped South as nearest administrative/geographic neighbor; negligible population in name-frequency tables
 Lakshadweep,South,Grouped South as nearest administrative/geographic neighbor; negligible population in name-frequency tables
+andaman,South,"naampy v2 dataset short-form alias for Andaman and Nicobar Islands"
+andhra,South,"naampy v2 dataset short-form alias for Andhra Pradesh"
+arunachal,East,"naampy v2 dataset short-form alias for Arunachal Pradesh -- North-East state folded into East; see DECISIONS.md #1"
+dadra,West,"naampy v2 dataset short-form alias for Dadra and Nagar Haveli"
+daman,West,"naampy v2 dataset short-form alias for Daman and Diu"
+himachal,North,"naampy v2 dataset short-form alias for Himachal Pradesh"
+jk,North,"naampy v2 dataset short-form alias for Jammu and Kashmir (and Ladakh)"
+maharastra,West,"naampy v2 dataset short-form alias for Maharashtra -- note the source data misspells it (missing an h), kept verbatim so the join matches"
+mp,North,"naampy v2 dataset short-form alias for Madhya Pradesh -- Central Hindi-belt state grouped North; see DECISIONS.md #1"
+up,North,"naampy v2 dataset short-form alias for Uttar Pradesh"

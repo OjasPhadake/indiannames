@@ -165,7 +165,8 @@ def clean_surnames() -> tuple[pd.DataFrame, list[dict]]:
 
     result = pd.concat(out_frames, ignore_index=True)
     result["type"] = "last"
-    result["prop_female"] = pd.NA
+    result["prop_female"] = float("nan")  # surnames aren't gendered; float NaN (not pd.NA)
+    # so this column's dtype matches firstnames' real float column on concat
     result = result.rename(columns={"surname": "name"})[
         ["name", "type", "region", "n_total", "prop_female", "merged_variants"]
     ].sort_values(["region", "n_total"], ascending=[True, False])

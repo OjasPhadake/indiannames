@@ -1,4 +1,6 @@
 .venv/
+.venv-chaturvedi/
+.venv-chaturvedi-lr/
 __pycache__/
 *.pyc
 .DS_Store
