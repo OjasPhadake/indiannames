@@ -1,0 +1,217 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{caption}
+\usepackage{xcolor}
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+\title{\textbf{A Statistically-Grounded Religion--Gender--Region Name Bank\\
+for Counterfactual Auditing of LLM Hiring Bias in India}}
+
+\author{Ojas Phadake}
+\date{September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Counterfactual audits of algorithmic hiring bias --- swapping only a candidate's name across otherwise identical resumes and measuring the change in a model's output --- require a name bank in which each name's demographic signal (religion, gender, region) is independently verifiable, not merely plausible to the researcher. We construct such a name bank for the Indian context, grounded entirely in real 2017 electoral-roll frequency data (Sood and Dhingra, 2023) rather than hand-invented or intuition-selected names. We describe a five-phase construction pipeline --- frequency extraction, cleaning and transliteration normalization, religion labeling via hand-curated markers cross-checked against an independent multiclass classifier, and iterative statistical quality assurance --- and report two resulting artifacts: a tightly-validated primary bank (241 names, gender purity $\geq 95\%$, minimum regional frequency 500 real people) and a higher-volume expanded bank (707 rows, 608 unique names, minimum frequency 30) for studies requiring larger per-cell samples. We additionally report two attempts to reduce the pipeline's dependence on hand-curated candidate lists in favor of the classifier --- prior-probability correction and confidence-weighted soft-scoring --- both of which we test quantitatively against known classifier failure modes and reject, since neither corrects the specific, repeatable biases we identify (a default-to-majority-class behavior, and a training-data-coverage gap for Punjabi Sikh surname transliterations). We also document a data-pipeline defect, discovered during quality assurance, that silently discarded 16 real, hand-verified candidate names across all four religions in our expanded bank prior to correction, and report its fix and quantified impact. The resulting name bank, the pipeline that produced it, and a complete decision log recording the reasoning behind every non-trivial judgment call are released for use in the counterfactual resume-ranking harness this name bank was built to support.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models are increasingly used, formally or informally, in hiring workflows: screening resumes, ranking candidates, and drafting outreach. Whether these models exhibit demographic bias --- systematically ranking otherwise-identical candidates differently based on a name's perceived religion, gender, or region --- is an empirical question that the correspondence-study methodology developed in labor economics is well suited to answer. In this design, a researcher holds every substantive feature of an application constant and varies only the candidate's name, attributing any measured difference in the model's output to the demographic signal the name carries \citep{thoratAttewell2007, banerjee2009}.
+
+The validity of such an audit rests entirely on the validity of its name bank. If the names used to represent, say, ``Muslim'' or ``Sikh'' candidates are chosen by an author's intuition about what such a name ``sounds like,'' the audit risks measuring the model's response to caricature rather than to real demographic signal, and risks confounding religion with unintended correlates (region, socioeconomic register, name popularity) that the intuitive selection did not control for. This project addresses that validity concern directly: every name in the bank we construct is drawn from and ranked by real frequency data from India's 2017 electoral rolls \citep{soodDhingra2023}, and every design decision that could not be settled by data alone --- caste handling, ambiguous religious attribution, disputed regional assignment --- is recorded with its reasoning in a public decision log, rather than left as an implicit, unexamined choice in code.
+
+This paper documents the construction of that name bank: its data sources, its five-phase construction pipeline, the alternative approaches we tested and rejected in an effort to reduce its dependence on hand-curated inputs, a data-pipeline defect discovered and corrected during quality assurance, and the resulting artifacts. The counterfactual resume-generation and ranking harness this name bank is built to support is ongoing work, outlined in Section~\ref{sec:future-work}.
+
+\section{Related Work}
+
+\textbf{Correspondence-study methodology.} \citet{thoratAttewell2007} sent 4,808 fictitious job applications to real Indian employers, with names identifiable as upper-caste Hindu, Dalit, or Muslim, and measured differential callback rates. \citet{banerjee2009} ran a comparable field experiment in Delhi using explicitly named caste-marker surnames (e.g., Sharma, Bhatia, Aggarwal as upper-caste; Paswan, Manjhi, Pasi as Dalit-linked). Both establish the name-swap audit design this project follows, and both motivate holding caste constant within the Hindu category (Section~\ref{sec:caste}): a caste effect that is real and independently documented could otherwise be mistaken for a religion effect if left uncontrolled.
+
+\textbf{Automated demographic inference from names.} \citet{susewind2015} proposes probabilistic inference of religious community from South Asian names via dictionary matching against a master name list. We evaluated this approach but did not adopt it: it cannot classify names or spelling variants absent from its master list, and constructing a sufficiently comprehensive master list is not less work than the marker-list approach we ultimately used. \citet{vahini2022} study gender and caste inference from 7.6 million Indian names but do not address religion, and --- notably for our own data-release decisions --- release only their inference code, not the underlying name datasets, citing privacy considerations; we adopt the same code-not-raw-data release posture (Section~\ref{sec:ethics}).
+
+\textbf{Automated religion classification.} \citet{chaturvedi2023} train a multiclass character-based classifier (Hindu, Muslim, Christian, Sikh, Jain, Buddhist) on NCAER Rural Economic and Demographic Survey data supplemented with 20,000 hand-annotated rural Uttar Pradesh household heads. We use this classifier as an independent cross-check throughout our pipeline (Section~\ref{sec:phase3}) and as the classifier under test in our rejected bias-correction experiments (Section~\ref{sec:rejected}).
+
+\textbf{LLM-specific hiring bias audits in India.} We are aware of one closely related audit of LLM behavior on Indian interview transcripts, varying candidate name by gender, caste, and region and finding no significant region or caste effect, with only marginal gender effects that do not survive Tukey post-hoc correction, from a design of 400 data points (50 transcripts $\times$ 8 conditions) that is plausibly underpowered \citep{invisiblefilters2025}. We were unable to independently verify this citation's exact author list against the published proceedings at the time of writing and flag it as such; it nonetheless represents the closest prior null result our own eventual power calculation should be evaluated against.
+
+\section{Data Sources and Provenance}
+\label{sec:data-sources}
+
+\textbf{Surname frequencies.} We use \texttt{instate} \citep{soodDhingra2023}: approximately 438 million Indian electoral-roll voter records spanning 33 states and roughly 1.14 million unique surname spellings, aggregated to surname $\times$ state count tables. The upstream distribution organization's package (\texttt{appeler/instate}) underwent an architectural rewrite (v3.0.0) during this project that replaced the bulk-downloadable frequency table with a single-name, neural-model-backed lookup API, breaking the original download URL. We re-sourced the same table from the maintainers' own current Hugging Face distribution point (\texttt{gojiberries/instate}), verifying it byte-identical to the prior GitHub-tag source (identical shape, identical total record count, identical values on spot-check) before switching, so this was a provenance change, not a data change.
+
+\textbf{First-name frequencies.} We use \texttt{naampy} (\texttt{appeler/naampy}), drawing on the same underlying electoral-roll population, for first-name $\times$ state $\times$ gender counts. Data acquisition was blocked for approximately one day by a full outage of Harvard Dataverse (every endpoint returning HTTP 504), the platform naampy downloads from at call time; the outage recovered without requiring a change of source.
+
+\textbf{Religion classifier weights.} The classifier of \citet{chaturvedi2023} is not usably distributed through its own GitHub repository, whose model directory contains an unrelated task's weights and an orphaned support-vector-machine file with no paired vectorizer. We located and used the paper's official replication data, separately archived on Harvard Dataverse under a CC0 license, which contains a loadable logistic-regression model, vectorizer, and label encoder. Loading these weights correctly required matching the exact \texttt{scikit-learn} version (1.0.2) used when they were pickled, in a dedicated Python 3.8 environment: we found that loading them under a modern \texttt{scikit-learn} version does not raise an error but silently degenerates the classifier to predicting the majority training class for nearly every input, a failure mode with no visible symptom other than incorrect output --- confirmed by testing several unambiguous names (\texttt{khan}, \texttt{ansari}, \texttt{singh}, \texttt{kaur}, \texttt{jain}) that all incorrectly returned the majority class ``Hindu'' under the version-mismatched load.
+
+A complete inventory of every source consulted, including those evaluated and explicitly not used (with reasons), is maintained separately from this paper as a living document.
+
+\section{Methodology}
+\label{sec:methodology}
+
+The pipeline proceeds in five phases, summarized here; exact parameters and every non-obvious judgment call are recorded in the project's decision log.
+
+\subsection{Phase 1: Frequency Base Construction}
+
+Region $\times$ gender frequency tables are built directly from the underlying electoral-roll tables described in Section~\ref{sec:data-sources}, rather than through \texttt{naampy}/\texttt{instate}'s single-name lookup helpers, which are designed for annotating an existing name against the data rather than for extracting a full ranked table. States are folded into four regions --- North, East, South, West --- with the Northeast folded into East and the central Hindi-belt states (Madhya Pradesh, Chhattisgarh) folded into North, following the region granularity decision recorded in the project decision log.
+
+\subsection{Phase 2: Cleaning, Deduplication, and Transliteration Normalization}
+\label{sec:phase2}
+
+Two data-quality issues are addressed. First, relational and honorific artifacts (\texttt{d/o}, \texttt{s/o}, \texttt{smt}, \texttt{shri}, and Gujarati given-name/honorific-suffix pairs such as \texttt{rameshbhai}) are identified and removed or stripped. Second, transliteration spelling variants of the same underlying name are collapsed to a single canonical spelling using two deterministic suffix rules --- a trailing ``a'' is stripped (\texttt{patila}~$\rightarrow$~\texttt{patil}), and a trailing ``-ee'' is normalized to ``-i'' --- with the higher-frequency spelling in each stem group chosen as canonical.
+
+An earlier version of this normalization step used generic edit-distance clustering (merging any two names within Levenshtein distance 1--2, weighted by frequency ratio) rather than these two explicit rules, and was found on manual inspection to be actively dangerous: Indian names are frequently short enough that unrelated names with materially different demographic signal sit within edit distance 1--2 of one another far more often than genuine spelling variants do. This approach was observed to merge \texttt{khan}$\leftrightarrow$\texttt{khatun}, \texttt{paswan}$\leftrightarrow$\texttt{hasan}, \texttt{mali}$\leftrightarrow$\texttt{ali}, \texttt{barman}$\leftrightarrow$\texttt{rahman}, and \texttt{ray}$\leftrightarrow$\texttt{rao}/\texttt{roy} --- real, distinct surnames, several with substantially different religion or caste signal, on precisely the axis this study measures. It was replaced with the two explicit rules above; any remaining near-duplicate pair that is not one of these two deterministic patterns is written to a review file for human adjudication rather than silently merged.
+
+\subsection{Phase 3: Religion Labeling}
+\label{sec:phase3}
+
+Primary religion labels are assigned via hand-curated marker name lists, one per religion, following the same labeling philosophy used by \citet{thoratAttewell2007} and \citet{banerjee2009}: names understood, from established sociolinguistic and cultural knowledge, to be distinctively associated with a religious community. Real electoral-roll frequency, not list membership alone, determines whether a marker-matched name clears the inclusion floor and how it ranks. Every labeled name is additionally scored by the independent classifier of \citet{chaturvedi2023} as a cross-check, though not as the primary label source; agreement between the two methods on the primary bank is 83.0\% (161 of 194 names for which the classifier returned a scoreable prediction). Rows on which the two methods disagree are flagged for priority human review rather than resolved automatically in either direction.
+
+\subsubsection{Caste Held Constant}
+\label{sec:caste}
+
+Following the precedent in \citet{thoratAttewell2007} and \citet{banerjee2009}, all Hindu-labeled names in this study are drawn from an upper-caste baseline (e.g., Sharma, Verma, Gupta), rather than spanning the full caste spectrum. This holds caste constant as a control variable rather than allowing it to vary jointly with religion, since caste-based discrimination is a documented, independent effect in the correspondence-study literature that would otherwise confound a religion-only comparison.
+
+\subsection{Corpus Expansion for Higher-Volume Studies}
+\label{sec:expansion}
+
+The primary bank's target cell size (approximately 25 first names and 25 surnames per religion) is appropriate for a tightly-validated reference set but too small for studies requiring larger per-cell samples. We construct a second, higher-volume bank by merging three candidate sources --- the primary hand-curated marker lists, a second independently hand-typed reference list, and the classifier of \citet{chaturvedi2023} --- with real electoral-roll frequency, not list membership, still determining final ranking and inclusion. Two selection gates are deliberately relaxed relative to the primary bank: the minimum regional frequency floor is lowered from 500 to 30 real people (still well above single- or double-digit noise), and the gender-purity threshold for classifying a first name as distinctively male or female is relaxed from $\geq 95\%$/$\leq 5\%$ to $\geq 60\%$/$\leq 40\%$, with names in the ambiguous 40--60\% band excluded outright rather than forced into either bucket.
+
+Critically, and as detailed in Section~\ref{sec:rejected}, the classifier is used only as a cross-check annotation on every row in this expanded bank, never as a source of new candidate names — a design decision reached only after directly testing and rejecting classifier-only inclusion.
+
+\subsection{Iterative Quality Assurance}
+\label{sec:qa}
+
+Five successive rounds of quality assurance were performed against the expanded bank, each grounded in re-checking hand-list claims against real electoral-roll statistics rather than against intuition:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Gender and region validation.} Every first name's claimed gender and every surname's claimed region were checked against the real gender/regional split in the frequency data. Six confirmed errors were corrected (e.g., a name hand-labeled Muslim-female that is 72\% male in the real data was moved to the male cell and replaced), and a further set of region mismatches were flagged for explicit review rather than silently corrected, since several were genuine multi-region surnames rather than errors.
+\item \textbf{Region reassignment.} Eighteen surnames flagged in the prior round were reassigned to the region(s) their real data supports, including several surnames deliberately retained in two regions where real data supports a substantial presence in both.
+\item \textbf{Cross-religion conflict resolution.} A systematic scan for the same name (of the same type --- first name or surname) appearing as a candidate for two different religions found six genuine conflicts. Each was resolved to a single religion based on real regional frequency and, where relevant, documented cultural association, with one name (\texttt{Singh}, genuinely and substantially used by both the Hindu and Sikh communities) retained as a deliberately documented dual-religion exception rather than forced to a single side.
+\item \textbf{Extended duplicate and plausibility checks.} A further pass found two additional cross-religion conflicts the prior round had missed, and a broader classifier-disagreement scan (restricted to cases where the classifier's top prediction differs from the assigned label at $\geq 85\%$ confidence, excluding the classifier's already-documented default-to-majority bias) surfaced three genuine mislabeling errors, each independently confirmed by etymology and community-usage knowledge before correction. This round also evaluated and rejected a fixed minimum-frequency inclusion threshold (e.g., 10,000 real people) on the grounds that India's religious population shares are highly unequal (approximately 80\% Hindu, 14\% Muslim, 2.3\% Christian, 1.7\% Sikh per the 2011 census), so a flat absolute floor would disproportionately and inappropriately exclude minority-religion names that are genuinely each community's most common, rather than indicating any data quality problem.
+\item \textbf{Pipeline defect discovery and correction.} Described in full in Section~\ref{sec:bug}, this round discovered and fixed a defect in the spelling-canonicalization step that had been silently discarding real, hand-verified candidate names across all four religions.
+\end{enumerate}
+
+\subsection{A Silent Candidate-Discarding Defect}
+\label{sec:bug}
+
+While investigating why several real, hand-listed Sikh surnames with substantial real-world frequency (e.g., a surname with 11,966 real electoral-roll records) were entirely absent from the expanded bank's output, we traced the cause to an interaction between the transliteration-normalization step (Section~\ref{sec:phase2}) and the downstream candidate-matching step. The normalization step's trailing-``a''-strip rule occasionally renames a real, hand-curated candidate's spelling to a \emph{different, unrelated} real word that happens to share the same stem and has a larger national count (for example, one surname was silently renamed to a word with roughly 23 times its own record count). The downstream step, which matches candidates against the frequency table by their original hand-list spelling, then found no row remaining under that original spelling and the candidate disappeared entirely from output, with no error, warning, or diagnostic of any kind.
+
+A full scan of every candidate name across all four religions against this specific failure mode found 18 affected candidates, 16 of which had been silently discarded in every prior run of this pipeline component, not only in the round in which the defect was found. Affected candidates included real names with substantial record counts across every religion in this study, not only Sikh surnames. The fix restricts the canonicalization merge so that any name appearing on a hand-curated candidate list always retains its own spelling and its own real count; only \emph{unprotected} spelling variants --- genuine transliteration noise that no human curator explicitly selected --- are still eligible to be merged into a larger stem-mate, preserving the original deduplication behavior for the noise the mechanism was designed to catch. Re-running the full pipeline after this fix recovered all 16 previously-discarded candidates under their correct spelling and increased several religion/gender cells to their full target size for the first time.
+
+\section{Rejected Alternative Approaches to Reduce Hand-List Dependence}
+\label{sec:rejected}
+
+A natural objection to the pipeline described above is that its primary labels rest on hand-curated candidate lists rather than being derived purely from statistical inference. We directly tested two standard techniques for reducing this dependence by leaning more heavily on the classifier of \citet{chaturvedi2023}, evaluating each against the pipeline's already-documented, specific classifier failure modes (a systematic tendency to mislabel clearly Muslim names such as \texttt{mohammad} and \texttt{hussain} as Sikh at high confidence, and clearly Hindu-pattern names such as \texttt{varun} and \texttt{sen} as Christian at high confidence, plausibly attributable to the classifier's training data under-representing this dataset's specific transliteration conventions) rather than assuming either technique would help from its formula alone.
+
+\textbf{Prior-probability correction} \citep{saerens2002} rescales each class's predicted probability by the inverse of that class's frequency in the classifier's training data, then by a target class frequency, to correct for a classifier's tendency to default to its most common training class under uncertainty. We tested two target distributions against a pool of 5,652 names. A uniform target (25\% per religion) changed 43\% of all predictions and made the known error cases worse, not better: the Sikh-labeled bucket grew nearly five-fold (from 27 to 125 names) by flooding in confidently-wrong Muslim names, since aggressively boosting a minority class's prior amplifies its highest-confidence predictions indiscriminately, right or wrong. A conservative target matching India's real census religious population shares changed only 149 of 5,652 predictions and corrected only one of eight previously-identified Sikh-mislabeling error cases, leaving the other seven confidently mislabeled. We conclude prior correction does not address this pipeline's actual failure mode: it corrects a classifier's calibration under uncertainty, whereas our observed errors are specific and confident, consistent with a training-data-coverage gap rather than a calibration problem.
+
+\textbf{Confidence-weighted soft-scoring} ranks every candidate name by a blended score (0.7 $\times$ hand-list membership indicator $+$ 0.3 $\times$ raw classifier probability) rather than gating inclusion on hand-list membership alone, allowing a sufficiently confident classifier-only prediction to compete for a corpus slot. For the Muslim, Hindu, and Christian religions this changed almost nothing, since hand-list candidates alone already filled nearly every available slot. For Sikh surnames, where hand-list candidates fill only 65--72 of 100 target slots, the remaining slots were filled by the classifier's next-most-confident guesses --- which were the identical previously-documented error names (\texttt{moosa}, \texttt{moohammad}, \texttt{sulaiman}, \texttt{abdullah}, \texttt{hussain}, and others, each at 54--94\% confidence), because the classifier has no better remaining candidates for this specific cell once its correct guesses are already accounted for. We conclude that soft-scoring can only help a thin cell if the classifier has good \emph{uncounted} candidates remaining for that cell, and for Sikh surnames specifically, given this classifier's training data, it does not; lowering the hand-list weight further would only admit more of the same wrong names with higher scores, not better ones.
+
+As a complementary diagnostic (not a candidate-inclusion method), we also compared the classifier's own top-confidence predictions, taken entirely on their own with no hand-list involvement at all, against the hand-list-backed corpus. Overlap for first names was minimal (0--7 of 50 per religion/gender cell), while surname overlap was partial and religion-dependent (strongest for Muslim surnames, at roughly 30--45\%). This confirms the two methods answer different underlying questions --- a hand-curated list selects names a human recognizes as distinctively religious, while the classifier's own top predictions merely reflect whatever is already popular in its training distribution --- rather than one method being a strict subset or refinement of the other.
+
+We conclude that the pipeline's current design, in which hand-curated lists gate candidate membership and the classifier serves only as an independent cross-check, is not a placeholder awaiting replacement by a more statistical method, but the correct choice given what we tested. Making the Sikh cell specifically less hand-list-dependent would require new labeled training data reflecting this dataset's transliteration conventions, not a different way of consuming the existing classifier's output.
+
+\section{Results}
+\label{sec:results}
+
+Table~\ref{tab:overview} summarizes the two resulting name banks. Table~\ref{tab:firstnames} and Table~\ref{tab:surnames} report the expanded bank's final composition by religion, gender, and region.
+
+\begin{table}[h]
+\centering
+\caption{Summary of the two name-bank artifacts.}
+\label{tab:overview}
+\begin{tabular}{lll}
+\toprule
+& \textbf{Primary bank} & \textbf{Expanded bank} \\
+\midrule
+Rows & 241 & 707 (608 unique names) \\
+Gender-purity gate & $\geq$95\% / $\leq$5\% & $\geq$60\% / $\leq$40\% \\
+Minimum regional frequency & 500 real people & 30 real people \\
+Target cell size & $\sim$25 per religion, per type & $\sim$100 per religion, per type \\
+Classifier cross-check agreement & 83.0\% (161/194) & lower (53\%), by design --- see Sec.~\ref{sec:expansion} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Expanded bank: first names by religion and gender.}
+\label{tab:firstnames}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Religion} & \textbf{Female} & \textbf{Male} & \textbf{Minimum real count} \\
+\midrule
+Hindu     & 50 & 50 & 710 \\
+Muslim    & 47 & 50 & 101 \\
+Christian & 47 & 50 & 103 \\
+Sikh      & 21 & 43 & 105 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Expanded bank: surnames by religion and region (Sikh surnames are pooled nationally rather than region-split, since no single Sikh surname dominates any one region the way common Hindu surnames do).}
+\label{tab:surnames}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Religion} & \textbf{North} & \textbf{East} & \textbf{South} & \textbf{West} & \textbf{Pooled} \\
+\midrule
+Hindu     & 25 & 25 & 25 & 25 & --- \\
+Muslim    & 25 & 25 & 25 & 25 & --- \\
+Christian & 13 & 25 & 25 & 25 & --- \\
+Sikh      & --- & --- & --- & --- & 61 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every count in Tables~\ref{tab:firstnames}--\ref{tab:surnames} is a real electoral-roll person-count, not a model-assigned score. The Christian-North and Sikh cells fall short of the 25/100 target honestly, reflecting a genuinely thinner pool of real, hand-verifiable candidates for these specific religion/region combinations, rather than a data quality defect (Section~\ref{sec:limitations}).
+
+\section{Discussion and Limitations}
+\label{sec:limitations}
+
+\textbf{Religion is not directly observed.} India's electoral rolls carry no religion field; every religion label in this study is either a hand-curated attribution or an independent classifier's prediction, neither of which is ground truth. We mitigate this by requiring agreement or explicit adjudicated resolution wherever the two disagree, and by publishing the full reasoning behind every disputed case, but residual misclassification in names not yet flagged by either check remains possible.
+
+\textbf{The classifier's errors are specific, not merely noisy.} We identify and repeatedly confirm (Sections~\ref{sec:rejected}) that the classifier of \citet{chaturvedi2023} defaults to its majority training class under uncertainty and, independently, mislabels a specific set of Muslim names as Sikh at high confidence. Both are training-data-coverage effects, not calibration effects, and are not correctable by the output-side statistical techniques we tested.
+
+\textbf{Cell-size differences across religions reflect real population proportions, not omission.} India's Sikh and Christian populations are each under 2.5\% of the national population, versus roughly 80\% Hindu; a name that is genuinely a minority religion's single most common name will still typically carry a far smaller absolute real-person count than an equivalently-ranked Hindu name. We verified this directly: a fixed absolute-count inclusion floor (e.g., 10,000 real people) would eliminate the large majority of Sikh entries and roughly half of Muslim and Christian entries while barely affecting the Hindu cell, which we judge would make the resulting bank a systematically \emph{worse}, not better, representation of religious minorities in a counterfactual audit.
+
+\textbf{Caste is held constant, not varied.} As discussed in Section~\ref{sec:caste}, all Hindu names are drawn from an upper-caste baseline; a counterfactual audit crossing caste with religion is out of scope for this name bank as constructed.
+
+\textbf{Single-year, single-source snapshot.} All frequency data derives from the 2017 electoral rolls; name popularity shifts over time, and this bank reflects one cross-section rather than a longitudinal trend.
+
+\textbf{Coarse regional aggregation.} States are folded into four regions (Section~\ref{sec:methodology}), a coarser granularity than state-level data would support, chosen to keep per-region-per-religion sample sizes usable at the target corpus scale.
+
+\section{Ethical Considerations}
+\label{sec:ethics}
+
+This study uses only aggregate, publicly-available frequency statistics derived from electoral rolls (counts of how many real people share a given name within a state), never individually identifiable voter records, and publishes no data that could re-identify an individual. Following the release posture adopted by \citet{vahini2022} for a similarly sourced dataset, we release the name bank and the code that produced it, but not any raw voter-record-level linkage. The purpose of this name bank is restricted to scientific measurement of algorithmic bias; we do not condone or support its use to generate synthetic identities for any purpose other than controlled research measurement.
+
+\section{Future Work}
+\label{sec:future-work}
+
+This name bank is an intermediate artifact in a larger study, of which the following phases remain: (i) a name-familiarity control, since an LLM's output could plausibly respond to a name's raw popularity independent of its religious signal, confounding the two unless popularity is measured and controlled for; (ii) synthetic resume generation, holding all substantive content constant while the name field is swapped across the bank constructed here; (iii) a counterfactual ranking harness that scores each resume variant across one or more LLM-based rankers and measures the resulting rank change attributable to the name swap alone; and (iv) statistical analysis of the resulting rank-change distributions, powered explicitly against the null and marginal-effect results reported by the most closely related prior LLM audit we are aware of \citep{invisiblefilters2025}. A further possible extension, motivated directly by the limitations in Section~\ref{sec:limitations}, is the collection of new labeled training data reflecting this dataset's specific transliteration conventions, which our rejected-methods analysis (Section~\ref{sec:rejected}) suggests is necessary to meaningfully reduce this pipeline's remaining dependence on hand-curated candidate lists for the Sikh religion cell specifically.
+
+\section{Conclusion}
+
+We construct a religion--gender--region name bank for India grounded entirely in real electoral-roll frequency data, via a five-phase pipeline whose every non-trivial design decision is documented with its supporting reasoning. We directly test, rather than assume, two standard techniques for reducing the pipeline's dependence on hand-curated candidate lists, quantify why both fail against the classifier's specific, repeatable error modes, and report this as a negative result rather than omitting it. We further report a silent data-pipeline defect discovered during iterative quality assurance, its root cause, and its correction, on the view that a research artifact's credibility rests as much on the visibility of the errors found and fixed along the way as on the correctness of its final output. The resulting name bank, at two levels of validation strictness, is released alongside the complete pipeline and decision log to support the counterfactual LLM hiring-bias audit this work was undertaken to enable.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

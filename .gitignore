@@ -7,3 +7,8 @@ __pycache__/
 data/raw/
 data/processed/freq_firstnames.csv
 data/processed/freq_surnames.csv
+docs/paper/*.aux
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/*.bbl
+docs/paper/*.blg

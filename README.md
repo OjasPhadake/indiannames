@@ -4,6 +4,8 @@ A religion × gender × region name bank for India, built from real 2017 elector
 
 **Author:** Ojas Phadake · **Status:** name bank complete (Phases 1–3), harness (Phases 4–7) in progress · **License:** see [Data provenance & licensing](#data-provenance--licensing)
 
+**Paper:** [`docs/paper/paper.pdf`](docs/paper/paper.pdf) — a full write-up of the methodology, results, rejected alternative approaches, and limitations described below, in research-paper form. Source: [`docs/paper/paper.tex`](docs/paper/paper.tex) / [`docs/paper/references.bib`](docs/paper/references.bib); rebuild with `pdflatex paper.tex && bibtex paper && pdflatex paper.tex && pdflatex paper.tex` from `docs/paper/`.
+
 ---
 
 ## Why this exists
