@@ -94,6 +94,12 @@ def main() -> None:
         "clf_predicted_religion": [idx2label[i] for i in pred_idx],
         "clf_max_prob": max_prob,
     })
+    # Full per-class probabilities too, not just the top pick -- needed for
+    # prior correction (src/prior_correct.py), which has to see all 6
+    # numbers to re-derive and undo the training class balance.
+    n_classes = probs.shape[1]
+    for i in range(n_classes):
+        out[f"prob_{idx2label[i]}"] = probs[:, i]
     out.to_csv(out_path, index=False)
     print(f"Wrote {out_path} ({len(out)} rows)")
     print(out["clf_predicted_religion"].value_counts().to_string())
